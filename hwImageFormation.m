@@ -405,9 +405,9 @@ title('Modulation transfer functions for 3 wavelengths');
 % Notice that the amplitude of the short-wavelength becomes negative. This
 % occurs because the blurring is so severe that the harmonic function is
 % reproduced in the opposite phase compared to the input harmonic.  Hence,
-% the amplitude is represented by a negative number.  This was illustrated
-% in class using the slide projector, and the phenomenon is called
-% "spurious resolution."
+% the amplitude is represented by a negative number.  This can be
+% illustrated using slide projector, and the phenomenon is called "spurious
+% resolution."
 
 
 %% More modern Linespreads, Pointspreads, and MTFs 
@@ -554,7 +554,7 @@ ieAddObject(oi); oiWindow;
 oiPlot(oi,'irradiance hline',[80 80]);
 set(gca,'xlim',[-10 10]);  % Plot radiance at central 1 mm
 
-%% Homework Questions
+%% Questions to Think About
 %
 %  1.  Which wavelengths of light are spread more by a diffraction-limited
 %  aperture?
