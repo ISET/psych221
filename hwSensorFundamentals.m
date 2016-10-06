@@ -19,63 +19,171 @@
 %%
 ieInit
 
-%% Load up an example scene
+%% Look at the photon noise in an image
 
-sFile = fullfile(isetRootPath,'data','images','rgb','hats.jpg');
-scene = sceneFromFile(sFile,'rgb', 100, displayCreate('OLED-Sony'));
-scene = sceneAdjustIlluminant(scene,'D65.mat');
+% Make a low intensity scene
+uscene  = sceneCreate('uniform equal energy');
+uscene  = sceneAdjustLuminance(uscene,10);
+uscene  = sceneSet(uscene,'fov',10);
+ieAddObject(uscene); sceneWindow;
 
-ieAddObject(scene); sceneWindow;
+% Calculate the optical image
+oi = oiCreate('diffraction limited');
+oi = oiSet(oi,'optics off axis method','skip');
+oi = oiCompute(oi,uscene);
+% ieAddObject(oi); oiWindow;
 
-%% Show a region of interest on the scene
+% Set up a monochrome sensor to a small field of view
+msensor = sensorCreate('monochrome');
+msensor = sensorSetSizeToFOV(msensor,5,uscene,oi);
+msensor = sensorSet(msensor,'exp time',0.001);
 
-% You can get the roiRect using get(gcf,'userdata')
-roiRect = [64 64 16 16];
-ieDrawShape(scene,'rectangle',roiRect);
+% Measure with no noise
+msensor = sensorSet(msensor,'noise flag',-1);  % No noise at all
+msensor = sensorCompute(msensor,oi);
 
-%% Plot the mean spectral radiance in the roi
+% Add noise, but just photon noise
+msensor = sensorSet(msensor,'noise flag',1);   % Add only photon noise
+msensor = sensorAddNoise(msensor);
+% ieAddObject(msensor); sensorWindow('scale',true);
 
-[udata, f] = scenePlot(scene,'radiance photons roi',roiRect);
+% Plot the histogram of the electron count
+e = sensorGet(msensor,'electrons');
+r = range(e(:));
+nBins = min(r,50);
 
-% The sum of the mean number of photons from all the wavelengths 
-% q/s/sr/nm/m2
-t = sprintf('Sum of photons across wavelengths %.2e\n',sum(udata.photons(:)));
-title(t);
+vcNewGraphWin; 
+h = histogram(e(:),nBins);
+xlabel('Number of photons');
+ylabel('Number of pixels');
+mn = double(mean(e(:)));
+txt = sprintf('Mean %.1f\nVar %.1f',mn,var(e(:)));
+text(mn,max(h.Values)/3,0,txt,'HorizontalAlignment','center','FontSize',20,'Color',[1 1 1])
 
-%% Create spectral irradiance at the sensor for optics with a range of f#
+%% Consider the effect of pixel size on the sensor MTF
 
-oi = oiCreate;  % Basic diffraction-limited optics
+% List of parameters we will set
+fNumber = 4;
+dyeSizeMicrons = 512;            % Microns
 
-% Region in the OI we will measure
-roiRect = [291 202 16 23];
+clear psSize;
+pSize = [2 3 5 9];                % Microns
 
-% Loop for different f numbers
-fnumbers = [2,4,8,16,32];
+%% SCENE: Create a slanted bar image.  Make the slope some uneven value
+scene = sceneCreate('slantedBar');
 
-% Store the photon count here
-totalQ = zeros(1,length(fnumbers));
+% Now we will set the parameters of these various objects.
+% First, let's set the scene field of view.
+scene = sceneAdjustLuminance(scene,100);    % Candelas/m2
+scene = sceneSet(scene,'distance',1);       % meters
+scene = sceneSet(scene,'fov',5);            % Field of view in degrees
+% ieAddObject(scene); sceneWindow;
 
-for ff = 1:length(fnumbers) 
-    oi = oiSet(oi,'optics fnumber',fnumbers(ff));
-    oi = oiCompute(scene,oi);
-    spectralIrradiance = oiGet(oi,'roi mean photons',roiRect);
-    totalQ(ff) = sum(spectralIrradiance);
+%% Create an optical image with some default optics.
+oi = oiCreate;
+oi = oiSet(oi,'optics fnumber',fNumber);
+
+% Now, compute the optical image from this scene and the current optical
+% image properties
+oi = oiCompute(scene,oi);
+% ieAddObject(oi); oiWindow;
+
+%%  Create a default monochrome image sensor array
+
+sensor = sensorCreate('monochrome');                %Initialize
+sensor = sensorSet(sensor,'autoExposure',1);
+
+% We are now ready to set sensor and pixel parameters to produce a variety
+% of captured images.  
+% Set the rendering properties for the monochrome imager. The default does
+% not color convert or color balance, so it is appropriate. 
+ip = ipCreate;
+
+% This is how I typically select a region of interest
+% [roiLocs,masterRect] = vcROISelect(ip);
+% masterRect = [ 199   168   101   167]; 
+
+%% Compute MTF across pixel sizes
+
+mtfData = cell(1,length(pSize));
+for ii=1:length(pSize)
+    
+    % Adjust the pixel size (meters)
+    sensor = sensorSet(sensor,'pixel size constant fill factor',[pSize(ii) pSize(ii)]*1e-6);
+
+    %Adjust the sensor row and column size so that the sensor has a constant
+    %field of view.
+    sensor = sensorSet(sensor,'rows',round(dyeSizeMicrons/pSize(ii)));
+    sensor = sensorSet(sensor,'cols',round(dyeSizeMicrons/pSize(ii)));
+
+    sensor = sensorCompute(sensor,oi);
+    vcReplaceObject(sensor); 
+    % sensorImageWindow;
+     
+    ip = ipCompute(ip,sensor);
+    vcReplaceObject(ip); 
+    % ipWindow;
+    
+    mrect = ISOFindSlantedBar(ip);
+       
+    barImage = vcGetROIData(ip,mrect,'results');
+    c = mrect(3)+1; r = mrect(4)+1;
+    barImage = reshape(barImage,r,c,3);
+    % figure; 
+    % imagesc(barImage(:,:,1)); axis image; colormap(gray); pause;
+    
+    dx = sensorGet(sensor,'pixel width','mm');
+    
+    % Run the ISO 12233 code.
+    % ISO12233(barImage);
+    weight = [];
+    mtfData{ii} = ISO12233(barImage, dx, weight, 'none');
+    
 end
 
-%% Plot one spectral irradiance
+%% Plot all the mtfData
 
+% The mtfData cell array contains all the information plotted in this
+% figure.  We graph the results, comparing the different pixel size MTFs. 
 vcNewGraphWin;
-plot(oiGet(oi,'wave'),spectralIrradiance,'--');
-grid on
-xlabel('Wavelength (nm)'); ylabel('Photons/s/nm/m^2');
-title(sprintf('Spectral irradiance (f# %d)',fnumbers(end)));
+c = {'r','g','b','c','m','y','k'};
+for ii=1:length(mtfData)
+    h = plot(mtfData{ii}.freq,mtfData{ii}.mtf,['-',c{ii}]);
+    hold on
+    newText = sprintf('%.0f um\n',pSize(ii));
+    nfreq = mtfData{ii}.nyquistf;
+    l = line([nfreq ,nfreq],[0.1,0],'color',c{ii});
+    text((nfreq-10),0.12,newText,'color',c{ii});
+end
 
-%% Plot the number of photons as a function of f#
+xlabel('lines/mm');
+ylabel('Relative amplitude');
+title('MTF for different pixel sizes (fixed die size)');
+hold off; grid on
 
-vcNewGraphWin;
-loglog(fnumbers,totalQ,'-o');
-grid on;
-xlabel('f#'); ylabel('Photons/s/m^2')
-title('Total photons vs. f#')
+%%  Show a visual example of the effect of pixel size
 
-%% 
+scene = sceneCreate('freq orient',512);
+fov = sceneGet(scene,'fov');
+oi    = oiCreate('diffraction limited');
+oi    = oiCompute(oi,scene);
+ip    = ipCreate;
+
+% Let's try it with an RGB sensor this time.
+sensor = sensorCreate;
+
+for ii=1:length(pSize)
+    
+    % Adjust the pixel size (meters)
+    sensor = sensorSet(sensor,'pixel size constant fill factor',[pSize(ii) pSize(ii)]*1e-6);
+    sensor = sensorSetSizeToFOV(sensor,fov,scene,oi);
+    sensor = sensorCompute(sensor,oi);
+   
+    ip = ipCompute(ip,sensor);
+    ip = ipSet(ip,'name',sprintf('pSize %.2f',pSize(ii)));
+    ieAddObject(ip); ipWindow;
+end
+
+
+
+
