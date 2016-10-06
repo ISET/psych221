@@ -19,7 +19,7 @@
 %%  Standard initialization
 ieInit
 
-%% Measure the variation in electrons (shot noise)
+%% Measure the variation in sensor electrons (shot noise)
 
 % We start with a low intensity uniform scene with equal energy at every
 % wavelength.  10 cd/m2 is pretty dark.  But you can experiment by changing
@@ -75,19 +75,20 @@ text(mn,max(h.Values)/3,0,txt,'HorizontalAlignment','center','FontSize',20,'Colo
 
 ieInit
 
-%% List of parameters we will set
+%% List of parameters 
+
 dyeSizeMicrons = 512;            % Microns
-clear psSize;
+clear psSize;                    % Pixel size (width)
 pSize = [2 3 5 8];               % Microns
 
 % The slanted bar scene is often used to assess spatial resolution.  We can
 % compute the modulation transfer function (MTF) from the sensor and image
 % processing response to the slanted bar.
-scene = sceneCreate('slantedBar', 512);
+scene = sceneCreate('slanted bar', 512);
 
 % Now we will set the parameters of these various objects.
 % First, let's set the scene field of view.
-scene = sceneAdjustLuminance(scene,100);    % Candelas/m2
+scene = sceneAdjustLuminance(scene,10);    % Candelas/m2
 scene = sceneSet(scene,'distance',1);       % meters
 scene = sceneSet(scene,'fov',5);            % Field of view in degrees
 % ieAddObject(scene); sceneWindow;
@@ -115,8 +116,8 @@ ip = ipCreate;
 
 %% Compute the MTF as we change the pixel size
 
+% Loop over different pixel sizes
 mtfData = cell(1,length(pSize));
-
 for ii=1:length(pSize)
     fprintf('Pixel size %.1f ',pSize(ii));
     % Adjust the pixel size (meters)
@@ -190,22 +191,24 @@ end
 %% Homework questions
 %
 %  * In the first part of this homework, try increasing or decreasing the
-%  exposure time and plot the electron count distribution.  What is the
-%  relationship between the mean number of electrons and the variance of
-%  the number of electrons?  Why?
+%  exposure time or uniform scene intensity, and plot the histogram showing
+%  the electron count distribution.  What is the relationship between the
+%  mean number of electrons and the variance of the number of electrons?
+%  Why?  
 %
-%  * What would happen to the calculations if we specified the original
-%  scene having a different spectral radiance distribution, say D65 or
-%  equal photon?  Do we expect a different mean number of electrons?  What
-%  about the relationship between the mean and the variance?
+%  * What would happen to the photon count calculations if we specified the
+%  original scene as having a different spectral radiance distribution, say
+%  D65 or equal photon rates across wavelength?  Do we expect a different
+%  mean number of electrons? What about the relationship between the mean
+%  and the variance?
 %
-%  * Replot the MTF for different pixel sizes using optics with, say, an
-%  fNumber of 12.  What happens to the different curves?
+%  * In the second part of the homework recalculate the MTFs using
+%  diffraction limited optics with, say, an fNumber of 12.  What happens to
+%  the different curves?
 %
 %  * Putting together the first and second parts of the homework, do you
-%  think that you will get the exact same curve when you measure twice?
-%  What about if you measure the slanted bar using a sensor with a short
-%  exposure duration?
+%  think that you will get the exact same curve when you repeat the MTF
+%  simulation?
 %
 %  * Bonus: In the second part of this homework, on spatial resolution, the
 %  colored and labeled tickmarks show the Nyquist frequency for line-paris
