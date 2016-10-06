@@ -188,33 +188,6 @@ for ii=1:length(pSize)
     ieAddObject(ip); ipWindow;
 end
 
-%% Homework questions
-%
-%  * In the first part of this homework, try increasing or decreasing the
-%  exposure time or uniform scene intensity, and plot the histogram showing
-%  the electron count distribution.  What is the relationship between the
-%  mean number of electrons and the variance of the number of electrons?
-%  Why?  
-%
-%  * What would happen to the photon count calculations if we specified the
-%  original scene as having a different spectral radiance distribution, say
-%  D65 or equal photon rates across wavelength?  Do we expect a different
-%  mean number of electrons? What about the relationship between the mean
-%  and the variance?
-%
-%  * In the second part of the homework recalculate the MTFs using
-%  diffraction limited optics with, say, an fNumber of 12.  What happens to
-%  the different curves?
-%
-%  * Putting together the first and second parts of the homework, do you
-%  think that you will get the exact same curve when you repeat the MTF
-%  simulation?
-%
-%  * Bonus: In the second part of this homework, on spatial resolution, the
-%  colored and labeled tickmarks show the Nyquist frequency for line-paris
-%  per millimeter.  Why would a two micron pixel have a Nyquist frequency
-%  of 250 line pairs per millimeter?
-%
-%%  
+%%
 
 
