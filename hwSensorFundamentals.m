@@ -16,41 +16,50 @@
 %
 % Copyright Imageval Consulting, LLC 2011
 
-%%
+%%  Standard initialization
 ieInit
 
-%% Look at the photon noise in an image
+%% Measure the variation in electrons (shot noise)
 
-% Make a low intensity scene
+% We start with a low intensity uniform scene with equal energy at every
+% wavelength.  10 cd/m2 is pretty dark.  But you can experiment by changing
+% the
 uscene  = sceneCreate('uniform equal energy');
-uscene  = sceneAdjustLuminance(uscene,10);
+candelas = 10;                         % Units are cd/m^2
+uscene  = sceneAdjustLuminance(uscene,candelas);   
 uscene  = sceneSet(uscene,'fov',10);
-ieAddObject(uscene); sceneWindow;
+% ieAddObject(uscene); sceneWindow;
 
-% Calculate the optical image
+% Calculate the optical image for a diffraction limited optics
 oi = oiCreate('diffraction limited');
-oi = oiSet(oi,'optics off axis method','skip');
+oi = oiSet(oi,'optics off axis method','skip');   % No relative illumination
 oi = oiCompute(oi,uscene);
 % ieAddObject(oi); oiWindow;
 
-% Set up a monochrome sensor to a small field of view
+% Set up a monochrome sensor with a field of view that is smaller than the
+% scene
 msensor = sensorCreate('monochrome');
 msensor = sensorSetSizeToFOV(msensor,5,uscene,oi);
-msensor = sensorSet(msensor,'exp time',0.001);
 
-% Measure with no noise
-msensor = sensorSet(msensor,'noise flag',-1);  % No noise at all
+% A short (1ms) exposure duration.  You can experiment with this.
+msensor = sensorSet(msensor,'exp time',0.001);    % Units are sec
+
+% Measure with no noise or quantization or clipping
+msensor = sensorSet(msensor,'noise flag',-1);  % No noise or quantization
 msensor = sensorCompute(msensor,oi);
 
-% Add noise, but just photon noise
+% Add photon noise.  Normally this happens within sensorCompute, but we are
+% specially controlling the processing in this tutorial.
 msensor = sensorSet(msensor,'noise flag',1);   % Add only photon noise
 msensor = sensorAddNoise(msensor);
 % ieAddObject(msensor); sensorWindow('scale',true);
 
-% Plot the histogram of the electron count
+% Plot a histogram of the electron count across the pixels.  Given that the
+% scene is uniform, and how we have controlled the noise, this produces the
+% shot noise distribution (variation in electrons due to photon noise)
 e = sensorGet(msensor,'electrons');
 r = range(e(:));
-nBins = min(r,50);
+nBins = min(r,50);  % Nice plot
 
 vcNewGraphWin; 
 h = histogram(e(:),nBins);
@@ -60,17 +69,21 @@ mn = double(mean(e(:)));
 txt = sprintf('Mean %.1f\nVar %.1f',mn,var(e(:)));
 text(mn,max(h.Values)/3,0,txt,'HorizontalAlignment','center','FontSize',20,'Color',[1 1 1])
 
-%% Consider the effect of pixel size on the sensor MTF
+%% Experiments with spatial resolution 
 
-% List of parameters we will set
-fNumber = 4;
+%  We consider the effect of pixel size on the sensor MTF
+
+ieInit
+
+%% List of parameters we will set
 dyeSizeMicrons = 512;            % Microns
-
 clear psSize;
-pSize = [2 3 5 9];                % Microns
+pSize = [2 3 5 8];               % Microns
 
-%% SCENE: Create a slanted bar image.  Make the slope some uneven value
-scene = sceneCreate('slantedBar');
+% The slanted bar scene is often used to assess spatial resolution.  We can
+% compute the modulation transfer function (MTF) from the sensor and image
+% processing response to the slanted bar.
+scene = sceneCreate('slantedBar', 512);
 
 % Now we will set the parameters of these various objects.
 % First, let's set the scene field of view.
@@ -80,7 +93,8 @@ scene = sceneSet(scene,'fov',5);            % Field of view in degrees
 % ieAddObject(scene); sceneWindow;
 
 %% Create an optical image with some default optics.
-oi = oiCreate;
+oi = oiCreate('diffraction limited');
+fNumber = 4;
 oi = oiSet(oi,'optics fnumber',fNumber);
 
 % Now, compute the optical image from this scene and the current optical
@@ -88,7 +102,7 @@ oi = oiSet(oi,'optics fnumber',fNumber);
 oi = oiCompute(scene,oi);
 % ieAddObject(oi); oiWindow;
 
-%%  Create a default monochrome image sensor array
+%%  Create a monochrome image sensor array
 
 sensor = sensorCreate('monochrome');                %Initialize
 sensor = sensorSet(sensor,'autoExposure',1);
@@ -99,46 +113,35 @@ sensor = sensorSet(sensor,'autoExposure',1);
 % not color convert or color balance, so it is appropriate. 
 ip = ipCreate;
 
-% This is how I typically select a region of interest
-% [roiLocs,masterRect] = vcROISelect(ip);
-% masterRect = [ 199   168   101   167]; 
-
-%% Compute MTF across pixel sizes
+%% Compute the MTF as we change the pixel size
 
 mtfData = cell(1,length(pSize));
+
 for ii=1:length(pSize)
-    
+    fprintf('Pixel size %.1f ',pSize(ii));
     % Adjust the pixel size (meters)
     sensor = sensorSet(sensor,'pixel size constant fill factor',[pSize(ii) pSize(ii)]*1e-6);
 
     %Adjust the sensor row and column size so that the sensor has a constant
     %field of view.
-    sensor = sensorSet(sensor,'rows',round(dyeSizeMicrons/pSize(ii)));
-    sensor = sensorSet(sensor,'cols',round(dyeSizeMicrons/pSize(ii)));
-
+    sensor = sensorSetSizeToFOV(sensor,5,scene,oi);   
     sensor = sensorCompute(sensor,oi);
-    vcReplaceObject(sensor); 
-    % sensorImageWindow;
      
     ip = ipCompute(ip,sensor);
-    vcReplaceObject(ip); 
-    % ipWindow;
+    mrect = ISOFindSlantedBar(ip);  % This is an option
+    % ieAddObject(ip); ipWindow;
+    % ieDrawShape(ip,'rectangle',mrect);
     
-    mrect = ISOFindSlantedBar(ip);
-       
     barImage = vcGetROIData(ip,mrect,'results');
     c = mrect(3)+1; r = mrect(4)+1;
     barImage = reshape(barImage,r,c,3);
-    % figure; 
-    % imagesc(barImage(:,:,1)); axis image; colormap(gray); pause;
+    % figure; imagesc(barImage(:,:,1)); axis image; colormap(gray);
     
     dx = sensorGet(sensor,'pixel width','mm');
     
     % Run the ISO 12233 code.
-    % ISO12233(barImage);
     weight = [];
     mtfData{ii} = ISO12233(barImage, dx, weight, 'none');
-    
 end
 
 %% Plot all the mtfData
@@ -164,7 +167,7 @@ hold off; grid on
 %%  Show a visual example of the effect of pixel size
 
 scene = sceneCreate('freq orient',512);
-fov = sceneGet(scene,'fov');
+fov   = sceneGet(scene,'fov');
 oi    = oiCreate('diffraction limited');
 oi    = oiCompute(oi,scene);
 ip    = ipCreate;
@@ -184,6 +187,31 @@ for ii=1:length(pSize)
     ieAddObject(ip); ipWindow;
 end
 
-
+%% Homework questions
+%
+%  * In the first part of this homework, try increasing or decreasing the
+%  exposure time and plot the electron count distribution.  What is the
+%  relationship between the mean number of electrons and the variance of
+%  the number of electrons?  Why?
+%
+%  * What would happen to the calculations if we specified the original
+%  scene having a different spectral radiance distribution, say D65 or
+%  equal photon?  Do we expect a different mean number of electrons?  What
+%  about the relationship between the mean and the variance?
+%
+%  * Replot the MTF for different pixel sizes using optics with, say, an
+%  fNumber of 12.  What happens to the different curves?
+%
+%  * Putting together the first and second parts of the homework, do you
+%  think that you will get the exact same curve when you measure twice?
+%  What about if you measure the slanted bar using a sensor with a short
+%  exposure duration?
+%
+%  * Bonus: In the second part of this homework, on spatial resolution, the
+%  colored and labeled tickmarks show the Nyquist frequency for line-paris
+%  per millimeter.  Why would a two micron pixel have a Nyquist frequency
+%  of 250 line pairs per millimeter?
+%
+%%  
 
 
