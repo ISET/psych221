@@ -1,17 +1,18 @@
 %% Sensor fundamentals
 %
-% 1. We learn a great deal about image quality and noise limits by counting
+% We learn a great deal about image quality and noise limits by counting
 % the (*Poisson*) arrival of photons at each pixel. Because ISET uses
 % physical units throughout, we can easily calculate the number of incident
 % photons, or stored electrons, at the sensor.
 %    
-% Show the Poisson distribution and noise characteristics
+% In this script, we show the Poisson distribution and its noise
+% characteristics
 %
-% 2. Impact of pixel size on the sensor resolution; make the nice MTF graph
-% that we use all the time
+% We also explore how pixel size impacts the sensor resolution. We can
+% create an MTF graph to analyze this.
 %
-% 3. s_sensorSNR ...
-%    s_sensorStackedPixels ()
+% For more information on sensors: see also:
+%    s_sensorSNR, s_sensorStackedPixels
 %    
 %
 % Copyright Imageval Consulting, LLC 2011
@@ -19,22 +20,22 @@
 %%  Standard initialization
 ieInit
 
-%% Measure the variation in sensor electrons (shot noise)
+%% Part 1: Measure the variation in sensor electrons (shot noise)
 
 % We start with a low intensity uniform scene with equal energy at every
 % wavelength.  10 cd/m2 is pretty dark.  But you can experiment by changing
-% the
+% the the number of candelas below and rerunning this section.
 uscene  = sceneCreate('uniform equal energy');
 candelas = 10;                         % Units are cd/m^2
 uscene  = sceneAdjustLuminance(uscene,candelas);   
 uscene  = sceneSet(uscene,'fov',10);
-% ieAddObject(uscene); sceneWindow;
+%eAddObject(uscene); sceneWindow; % Visualize the scene
 
 % Calculate the optical image for a diffraction limited optics
 oi = oiCreate('diffraction limited');
 oi = oiSet(oi,'optics off axis method','skip');   % No relative illumination
 oi = oiCompute(oi,uscene);
-% ieAddObject(oi); oiWindow;
+% ieAddObject(oi); oiWindow; % Visualize the optical image
 
 % Set up a monochrome sensor with a field of view that is smaller than the
 % scene
@@ -52,42 +53,41 @@ msensor = sensorCompute(msensor,oi);
 % specially controlling the processing in this tutorial.
 msensor = sensorSet(msensor,'noise flag',1);   % Add only photon noise
 msensor = sensorAddNoise(msensor);
-% ieAddObject(msensor); sensorWindow('scale',true);
+% ieAddObject(msensor); sensorWindow('scale',true); % Visualize the sensor
+% image
 
 % Plot a histogram of the electron count across the pixels.  Given that the
 % scene is uniform, and how we have controlled the noise, this produces the
 % shot noise distribution (variation in electrons due to photon noise)
 e = sensorGet(msensor,'electrons');
 r = range(e(:));
-nBins = min(r,50);  % Nice plot
+nBins = min(r,50);  % Makes a nice plot
 
 vcNewGraphWin; 
-h = histogram(e(:),nBins);
-xlabel('Number of photons');
+h = histogram(e(:),nBins); % try "hist" for older versions of MATLAB 
+xlabel('Number of electrons');
 ylabel('Number of pixels');
 mn = double(mean(e(:)));
 txt = sprintf('Mean %.1f\nVar %.1f',mn,var(e(:)));
 text(mn,max(h.Values)/3,0,txt,'HorizontalAlignment','center','FontSize',20,'Color',[1 1 1])
 
-%% Experiments with spatial resolution 
-
-%  We consider the effect of pixel size on the sensor MTF
-
+%% Part 2: Experiments with spatial resolution 
+%  We consider the effect of pixel size on the sensor MTF in the following
+%  sections.
 ieInit
 
 %% List of parameters 
 
 dyeSizeMicrons = 512;            % Microns
 clear psSize;                    % Pixel size (width)
-pSize = [2 3 5 8];               % Microns
+pSize = [2 3 5 8];               % Different pixel sizes in microns
 
 % The slanted bar scene is often used to assess spatial resolution.  We can
 % compute the modulation transfer function (MTF) from the sensor and image
 % processing response to the slanted bar.
 scene = sceneCreate('slanted bar', 512);
 
-% Now we will set the parameters of these various objects.
-% First, let's set the scene field of view.
+% First, let's set the scene parameters. 
 scene = sceneAdjustLuminance(scene,10);    % Candelas/m2
 scene = sceneSet(scene,'distance',1);       % meters
 scene = sceneSet(scene,'fov',5);            % Field of view in degrees
@@ -106,7 +106,7 @@ oi = oiCompute(scene,oi);
 %%  Create a monochrome image sensor array
 
 sensor = sensorCreate('monochrome');                %Initialize
-sensor = sensorSet(sensor,'autoExposure',1);
+sensor = sensorSet(sensor,'autoExposure',1); % Set to auto exposure
 
 % We are now ready to set sensor and pixel parameters to produce a variety
 % of captured images.  
@@ -119,6 +119,7 @@ ip = ipCreate;
 % Loop over different pixel sizes
 mtfData = cell(1,length(pSize));
 for ii=1:length(pSize)
+    
     fprintf('Pixel size %.1f ',pSize(ii));
     % Adjust the pixel size (meters)
     sensor = sensorSet(sensor,'pixel size constant fill factor',[pSize(ii) pSize(ii)]*1e-6);
@@ -128,7 +129,7 @@ for ii=1:length(pSize)
     sensor = sensorSetSizeToFOV(sensor,5,scene,oi);   
     sensor = sensorCompute(sensor,oi);
      
-    ip = ipCompute(ip,sensor);
+    ip = ipCompute(ip,sensor); % Image processing pipeline
     mrect = ISOFindSlantedBar(ip);  % This is an option
     % ieAddObject(ip); ipWindow;
     % ieDrawShape(ip,'rectangle',mrect);
@@ -166,6 +167,7 @@ title('MTF for different pixel sizes (fixed die size)');
 hold off; grid on
 
 %%  Show a visual example of the effect of pixel size
+% You can select a pixel size from the drop down menu on the top.
 
 scene = sceneCreate('freq orient',512);
 fov   = sceneGet(scene,'fov');
