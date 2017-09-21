@@ -1,6 +1,13 @@
 %% Class tutorial on optics and image formation (Psych 221)
 %
-% A very general overview of image formation.
+% An introduction to topics in image formation.  There are sections on 
+%
+%   * Visual angle
+%   * Linespread function and convolution
+%   * Harmonic functions and blurring
+%   * Pointspread functions
+%   * Chromatic aberration
+%   * Defocus and f-numbers
 %
 % At the end, there is a small example showing how to use ISET for these
 % types of image formation calculations.
@@ -416,7 +423,8 @@ load combinedOtf;
 vcNewGraphWin;
 plot(sampleSf, combinedOtf(81, :), 'b-', ...
     sampleSf, combinedOtf(201,:), ...
-    'g:', sampleSf, combinedOtf(361, :), 'r--' );
+    'g:', sampleSf, combinedOtf(361, :), 'r--' ,...
+    'linewidth',2);
 legend('wavelength 450', 'wavelength 570','wavelength 730');
 xlabel('Frequency (CPD)'); ylabel('Scale factor'); grid on
 title('Modulation transfer functions for 3 wavelengths');
@@ -453,7 +461,7 @@ freqIndexRange = 1:50; 		% The spatial frequency range
 % 
 angleInDeg = (-.25:.005:.25);
 angleInSec = angleInDeg*3600;
-angleInRad = angleInDeg*deg2rad;
+angleInRad = deg2rad(angleInDeg);
 
 [iMTF, iPSF, iLSF] = ijspeert(age, pupil, pigmentation, ...
     freqIndexRange, angleInRad);
