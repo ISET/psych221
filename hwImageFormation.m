@@ -7,44 +7,57 @@
 %
 % Date:      01.02.96	(First drafted)
 % Duration:  60 minutes
-%
-% Wandell, Checked 2016
 
-%%  Clear the ISET database and variables
-ieInit
+%%  Clear the ISET database
+ieInit;
 
 %% Visual Angle
 
-% To think about the effect of an image on the eye, we must specify the
-% image in terms of degrees of visual angle.  As an example for how to
-% compute spacing in terms of degrees of visual angle, consider a printer
-% whose dots are spaced (dots per inch)
-dpi = 600
+% There are various ways to specify the physical characteristics of an
+% image. For example, people describe the image in terms of its physical
+% size (e.g., 25 cm wide) and distance from the image acquisition device
+% (e.g., 1m)
+% 
+% From the point of view of an optical system, it can be very useful to
+% specify the image in terms of the visual angle the image sweeps out at
+% the camera (or eye). There is a relationship between the physical
+% description of the object and the the degrees of visual angle.
+% Suppose we read the paper at a viewing distance (meters)
+viewingDistance = 0.5
 
-% Suppose we read the paper at a viewing distance (inches)
-viewingDistance = 12
-
-%% The viewing geometry 
+% Imagine a character that is 50 mm (0.05 m) high
+imageHeight = 0.05
+%% This is a small picture of the viewing geometry 
 
 vcNewGraphWin;
-line([0 viewingDistance 0 0],[0 0 1 0]); 
+plot(viewingDistance,0,'o'); hold on
+line([0 viewingDistance 0 0],[0 0 imageHeight 0]); 
 axis equal
-set(gca,'xlim',[-2 20]), grid on
-xlabel('Viewing Distance (inch)')
-ylabel('Position between spots on paper (inch)')
+set(gca,'xlim',[-0.1 viewingDistance + 0.1],'ylim',[-0.1 imageHeight + 0.1]), grid on
+xlabel('Viewing Distance (m)')
+ylabel('Image height (m)')
+grid on
 
 %% Geometric angle calculation
 
-%  In radians, the viewing angle, phi, satisfies  
-%   $tan(\phi) = (opposite/adjacent)$
+%  In degrees, the viewing angle, phi, satisfies  
+%   $tand(\phi) = (opposite/adjacent)$
 
-deg2rad = 2*pi/360;
-rad2deg = 360/(2*pi)
-phi = atan(1/viewingDistance)*rad2deg
+phi = atand(imageHeight/viewingDistance)
 
-% There are 600 dots per inch, so that each dot occupies
-%
-DegPerDot = phi/dpi
+% Suppose we are looking at a printer with 600 dots per inch. This is a
+% common specification for printers
+dpi = 600
+
+% We would like to put everything into meters.  ISET has a convenient
+% function to convert these units into meters per dot.
+meterPerDot = dpi2mperdot(dpi,'meters')
+
+% So there are this many dots in the imageHeight
+nDots = imageHeight/meterPerDot
+
+% Thus, each dot takes up this many degrees of visual angle
+DegPerDot = phi/nDots
 
 % There are 60 min of visual angle per deg,
 %
@@ -54,11 +67,17 @@ MinPerDot = 60*DegPerDot
 %
 SecPerDot = 60*MinPerDot
 
-% As you will see later in the course, experiments have shown that people
-% can localize the position of a line to a spatial position of roughly 6
-% sec of visual angle.  Hence, at this viewing distance and with this many
-% dots per inch, the dot spacing is wider than the spacing that can be just
-% discriminated by the human eye.
+% Experiments have shown that people see a difference between two lines
+% that are offset by 6 sec of visual angle.  Hence, the dot spacing is
+% wider than the spacing that can be just discriminated by the human eye.
+%
+% What dot spacing would be required so that a person could not tell the
+% difference between two lines offset by 1 pixel?  Or, alternatively, how
+% far away would the paper have to be so that a person could not tell the
+% difference?
+%
+% Run the script hwImageFormation2.m to see this type of calculation in an
+% ISET window.
 
 %% The Westheimer linespread function
 
