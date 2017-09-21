@@ -1,25 +1,21 @@
-%% Class tutorial on optics and image formation (Psych 221)
-%
-% An introduction to topics in image formation.  There are sections on 
-%
-%   * Visual angle
-%   * Linespread function and convolution
-%   * Harmonic functions and blurring
-%   * Pointspread functions
-%   * Chromatic aberration
-%   * Defocus and f-numbers
-%
-% At the end, there is a small example showing how to use ISET for these
-% types of image formation calculations.
-%
-% Date:      01.02.96	(First drafted)
-% Duration:  60 minutes
+%% Topcs on image formation (Psych 221)
+% There are sections on 
+% 
+% * |Visual angle|
+% * |Circle of confusion|
+% * |Linespread function and convolution|
+% * |Harmonic functions and blurring|
+% * |Pointspread functions|
+% * |Chromatic aberration|
+% * |Defocus and f-numbers|
+% 
+% Date: 01.02.96 (First drafted) Duration: 60 minutes
+%% Clear the ISET database
 
-%%  Clear the ISET database
 ieInit;
 
 %% Visual Angle
-
+%%
 % There are various ways to specify the physical characteristics of an
 % image. For example, people describe the image in terms of its physical
 % size (e.g., 25 cm wide) and distance from the image acquisition device
@@ -34,8 +30,8 @@ viewingDistance = 0.5
 
 % Imagine a character that is 50 mm (0.05 m) high
 imageHeight = 0.05
-%% This is a small picture of the viewing geometry 
-
+%% This is a small picture of the viewing geometry
+%%
 vcNewGraphWin;
 plot(viewingDistance,0,'o'); hold on
 line([0 viewingDistance 0 0],[0 0 imageHeight 0]); 
@@ -44,35 +40,12 @@ set(gca,'xlim',[-0.1 viewingDistance + 0.1],'ylim',[-0.1 imageHeight + 0.1]), gr
 xlabel('Viewing Distance (m)')
 ylabel('Image height (m)')
 grid on
-
 %% Geometric angle calculation
+%%
 
-%  In degrees, the viewing angle, phi, satisfies  
+%  The viewing angle, phi, satisfies  
 %   $tand(\phi) = (opposite/adjacent)$
-
 phi = atand(imageHeight/viewingDistance)
-
-% Suppose we are looking at a printer with 600 dots per inch. This is a
-% common specification for printers
-dpi = 600
-
-% We would like to put everything into meters.  ISET has a convenient
-% function to convert these units into meters per dot.
-meterPerDot = dpi2mperdot(dpi,'meters')
-
-% So there are this many dots in the imageHeight
-nDots = imageHeight/meterPerDot
-
-% Thus, each dot takes up this many degrees of visual angle
-DegPerDot = phi/nDots
-
-% There are 60 min of visual angle per deg,
-%
-MinPerDot = 60*DegPerDot
-
-% and 60 sec of visual angle per min,
-%
-SecPerDot = 60*MinPerDot
 
 % Experiments have shown that people see a difference between two lines
 % that are offset by 6 sec of visual angle.  Hence, the dot spacing is
@@ -83,11 +56,11 @@ SecPerDot = 60*MinPerDot
 % far away would the paper have to be so that a person could not tell the
 % difference?
 %
-% Run the script hwImageFormation2.m to see this type of calculation in an
+% Run the script hwImageFormationWindow.m to see this type of calculation in an
 % ISET window.
 
 %% The Westheimer linespread function
-
+%%
 % Westheimer calculated that the linespread function of the human
 % eye, specified in terms of minutes of arc and using a 3mm
 % pupil, should be approximated using the following formula
@@ -116,9 +89,8 @@ xlabel('Arc sec'), ylabel('Responsivity'), title('Westheimer Linespread')
 % which we cannot do on conventional laser printers -- then at this viewing
 % distance we would be able to produce images that were very realistic in
 % their appearance.
-
 %% Another way to calculate and plot the Westheimer function
-
+%%
 xSec = -300:300;    % 600 sec, total = 10 min
 westheimerOTF = abs(fft(westheimerLSF(xSec)));
 % One cycle spans 10 min of arc, so freq=1 is 6 c/deg
@@ -127,13 +99,32 @@ vcNewGraphWin;
 semilogy(freq,westheimerOTF([1:12])); grid on;
 xlabel('Freq (cpd)'); ylabel('Relative contrast');
 set(gca,'ylim',[0 1.1])
-
-
 %% Convolution of the image and linespread
-
+%%
 % We can estimate the visual image created by an image printed at 600 dpi
 % using the following simple convolution calculation. Let's create an image
 % that spans 0.2 deg and has a dot every 30 sec. (i.e., roughly 28.58)
+% Suppose we are looking at a printer with 600 dots per inch. This is a
+% common specification for printers
+% dpi = 600
+% 
+% % We would like to put everything into meters.  ISET has a convenient
+% % function to convert these units into meters per dot.
+% meterPerDot = dpi2mperdot(dpi,'meters')
+% 
+% % So there are this many dots in the imageHeight
+% nDots = imageHeight/meterPerDot
+% 
+% % Thus, each dot takes up this many degrees of visual angle
+% DegPerDot = phi/nDots
+% 
+% % There are 60 min of visual angle per deg,
+% %
+% MinPerDot = 60*DegPerDot
+% 
+% % and 60 sec of visual angle per min,
+% %
+% SecPerDot = 60*MinPerDot
 
 dotSpacing = 30;
 secPerDeg = 60*60;
@@ -198,9 +189,8 @@ xlabel('Sec of arc'), ylabel('Intensity')
 % resolution to 1200 dpi?  What if we introduce some ability to
 % modulate the density of the ink and hence the light scattered
 % back to the eye?
-
 %% Defocus in the frequency domain
-
+%%
 % First, make a new linespread function that is smaller and
 % easier to compute with.  Have it extend over 1 deg (60 min) so
 % the Fourier Transform is easier to interpret
@@ -225,9 +215,8 @@ vcNewGraphWin;
 plot(xMin,harmonic), grid on
 title('Sampled cosinusoid')
 xlabel('Arc sec'), ylabel('Intensity')
-
-%% Cosinusoids at different spatial frequencies.  
-
+%% Cosinusoids at different spatial frequencies.
+%%
 % Notice that the amplitude of the cosinusoid falls off as the spatial
 % frequency increases.  We will store the amplitude of the cosinusoid in
 % the variable "peak".
@@ -254,9 +243,8 @@ plot([0 freq],[1 peak],'-')
 set(gca,'ylim',[0 1])
 xlabel('Spatial freq (cpd)'), ylabel('Transfer')
 grid on
-
-%% The Fourier Transform and the linespread function.  
-
+%% The Fourier Transform and the linespread function.
+%%
 % Remember, the linespread was built so that it spans 1 deg, hence
 % frequency is in cycles per degree.
 
@@ -270,9 +258,8 @@ hold off
 
 % The functions match, which should give you some intuition about
 % what the amplitude of the Fourier Transform represents.
-
 %% The pointspread and linespread
-
+%%
 % When working with two-dimensional inputs, we must consider the
 % pointspread function, that is the response to an input that is
 % a point of light. A standard formula for the cross-section of
@@ -310,9 +297,8 @@ colormap(cool(64)), mesh(ps)
 
 % To see the pointspread as an image, rather than as a mesh plot,
 % you might make this figure: colormap(gray(32)),imagesc(ps), axis image
-
 %% How the linespread varies with wavelength
-
+%%
 % The linespread varies quite strongly with wavelength.  When the
 % eye is in good focus at 580 nm (yellow-part of the spectrum)
 % the light in the short-wavelength (400-450nm) is blurred quite
@@ -404,9 +390,8 @@ mean(retIm(200,:),2)
 % distinct.  Hence, the short-wavelength variation would be very hard to
 % detect in the retinal image, while the 570 nm component would be quite
 % easy to detect.
-
 %% Chromatic aberration in the frequency domain
-
+%%
 % Finally, let's make a few graphs of the modulation transfer function of
 % the eye's optical system for individual wavelengths.  For short
 % wavelength lights, high spatial frequency contrast is attenuated a lot by
@@ -435,10 +420,8 @@ title('Modulation transfer functions for 3 wavelengths');
 % the amplitude is represented by a negative number.  This can be
 % illustrated using slide projector, and the phenomenon is called "spurious
 % resolution."
-
-
-%% More modern Linespreads, Pointspreads, and MTFs 
-
+%% More modern Linespreads, Pointspreads, and MTFs
+%%
 % In recent years, Ijspeert and others in the Netherlands developed a more
 % extensive set of functions to predict the basic image formation variables
 % in the average human eye.  The curves they derived were based on
@@ -501,9 +484,8 @@ plot(angleInSec/60,iLSF,'b-',angleInSec/60,ls,'r-')
 set(gca,'xtick',(-8:2:8),'xlim',[-6 6]);
 xlabel('Position (min)'), ylabel('Intensity'), title('Linespread')
 grid on
-
-%% Comparison of the MTFs with the Williams data 
-
+%% Comparison of the MTFs with the Williams data
+%%
 load williams
 
 subplot(1,2,2) 
@@ -517,9 +499,8 @@ set(gca,'ylim',[0 1])
 grid on
 hold off
 legend('Ijspeert','Westheimer','Data')
-
 %% What does the pointspread function look like in 2D?
-
+%%
 % The PSF is circularly symmetric.  So, we can accumulate 
 % the 1D values into a 2D surface.
 %
@@ -548,9 +529,8 @@ end
 vcNewGraphWin;
 colormap(cool(64));
 surf(angleInRad2D,angleInRad2D,iPSF2D);
-
 %% Using ISET to visualize defocus of diffraction limited optics
-
+%%
 % Create a scene comprising a multispectral line, with equal photons
 scene = sceneCreate('line ep',128);    % A thin line, equal photon radiance at each wavelength
 scene = sceneSet(scene,'fov', 0.5);    % Small field of view (deg)
@@ -561,9 +541,8 @@ scenePlot(scene,'radiance hline',[64 64]);
 set(gca,'xlim',[-1 1]);  % Plot radiance at central 1 mm
 
 % Type doc scenePlot to see other plotting options
-
 %% Simulate the line passing through diffraction-limited optics
-
+%%
 oi = oiCreate;               % Default optics is defraction limited
 oi = oiCompute(oi,scene);
 ieAddObject(oi); oiWindow;
@@ -571,45 +550,52 @@ ieAddObject(oi); oiWindow;
 % Plot the line spread as a function of wavelength
 oiPlot(oi,'irradiance hline',[80 80]);
 set(gca,'xlim',[-10 10]);  % Plot radiance at central 10 um
-
 %% Now change the f-number of the optics and do it again
-
+%%
 oi = oiSet(oi,'optics fnumber',12);
 oi = oiCompute(oi,scene);
 ieAddObject(oi); oiWindow;
 
 oiPlot(oi,'irradiance hline',[80 80]);
 set(gca,'xlim',[-10 10]);  % Plot radiance at central 1 mm
-
 %% Questions to Think About
-%
-%  1.  Which wavelengths of light are spread more by a diffraction-limited
-%  aperture?
-%
-%  2.  Use ISET to change the focal length, rather than the f-number of the
-%  diffraction-limited lens.  
-%      * What is the value of the aperture diameter when you double the
-%      focal length, but do not change the f-number?
-%      * Now, use oiPlot to graph the spectral line spread. How does it
-%      compare with the original line spread?
-%      
-%    Help:
-%      You can read the current focal length and aperture diameter using
-%          oiGet(oi,'optics focal length')
-%          oiGet(oi,'optics aperture diameter')
-%      You can set the focal length using
-%           oi = oiSet(oi,'optics focal length',val)
-%
-%  3.  In ISET, you can adjust the fnumber and focal length directly.  But
-%  you cannot adjust the aperture directly.  Two out of three ain't bad.
-%  Suppose you want to configure diffraction-limited optics with an
-%  aperture of 0.1mm and a focal length of 0.4mm.  How would you set the
-%  parameters?  
-%    Help:  The f-number is focal length divided by aperture diameter
-%
+% |1.  Which wavelengths of light are spread more by a diffraction-limited|
+% 
+% |aperture?|
+% 
+% |2.  Use ISET to change the focal length, rather than the f-number of the|
+% 
+% |diffraction-limited lens.  |
+% 
+% |    * What is the value of the aperture diameter when you double the|
+% 
+% |    focal length, but do not change the f-number?|
+% 
+% |    * Now, use oiPlot to graph the spectral line spread. How does it|
+% 
+% |    compare with the original line spread?|
+% 
+% |  Help:|
+% 
+% |    You can read the current focal length and aperture diameter using|
+% 
+% |        oiGet(oi,'optics focal length')|
+% 
+% |        oiGet(oi,'optics aperture diameter')|
+% 
+% |    You can set the focal length using|
+% 
+% |         oi = oiSet(oi,'optics focal length',val)|
+% 
+% |3.  In ISET, you can adjust the fnumber and focal length directly.  But|
+% 
+% |you cannot adjust the aperture directly.  Two out of three ain't bad.|
+% 
+% |Suppose you want to configure diffraction-limited optics with an|
+% 
+% |aperture of 0.1mm and a focal length of 0.4mm.  How would you set the|
+% 
+% |parameters?  |
+% 
+% |  Help:  The f-number is focal length divided by aperture diameter|
 %% END
-
-
-
-
-
