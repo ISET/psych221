@@ -27,34 +27,42 @@ ieInit
 % the the number of candelas below and rerunning this section.
 uscene  = sceneCreate('uniform equal energy');
 candelas = 10;                         % Units are cd/m^2
-uscene  = sceneAdjustLuminance(uscene,candelas);   
-uscene  = sceneSet(uscene,'fov',10);
-%eAddObject(uscene); sceneWindow; % Visualize the scene
+uscene  = sceneAdjustLuminance(uscene,candelas);  
+uscene  = sceneSet(uscene,'fov',10); % The scene extends a 10 degree field of view
 
-% Calculate the optical image for a diffraction limited optics
+% You can uncomment this to visualize the scene in the GUI
+% ieAddObject(uscene); sceneWindow;
+
+% Calculate the optical image for a diffraction limited optics. This
+% represents the irradiance that arrives at the sensor after passing
+% through the optics.
 oi = oiCreate('diffraction limited');
-oi = oiSet(oi,'optics off axis method','skip');   % No relative illumination
-oi = oiCompute(oi,uscene);
-% ieAddObject(oi); oiWindow; % Visualize the optical image
+oi = oiSet(oi,'optics off axis method','skip');   % We won't add any vignetting to the optics
+oi = oiCompute(oi,uscene); % Pass the scene through the optics
+
+% You can uncomment this to visualize the optical image in the GUI
+% ieAddObject(oi); oiWindow; 
 
 % Set up a monochrome sensor with a field of view that is smaller than the
 % scene
 msensor = sensorCreate('monochrome');
 msensor = sensorSetSizeToFOV(msensor,5,uscene,oi);
 
-% A short (1ms) exposure duration.  You can experiment with this.
-msensor = sensorSet(msensor,'exp time',0.001);    % Units are sec
+% Set the exposure duration to be short (1ms). You can experiment with this
+% if you'd like.
+msensor = sensorSet(msensor,'exp time',0.001);    % Units are in seconds
 
-% Measure with no noise or quantization or clipping
+% Set the sensor to have no noise, quantization, or clipping
 msensor = sensorSet(msensor,'noise flag',-1);  % No noise or quantization
 msensor = sensorCompute(msensor,oi);
 
 % Add photon noise.  Normally this happens within sensorCompute, but we are
-% specially controlling the processing in this tutorial.
+% explicitly controlling it here in this tutorial.
 msensor = sensorSet(msensor,'noise flag',1);   % Add only photon noise
 msensor = sensorAddNoise(msensor);
-% ieAddObject(msensor); sensorWindow('scale',true); % Visualize the sensor
-% image
+
+% You can uncomment this to visualize the sensor image in the GUI
+% ieAddObject(msensor); sensorWindow('scale',true);
 
 % Plot a histogram of the electron count across the pixels.  Given that the
 % scene is uniform, and how we have controlled the noise, this produces the
@@ -70,6 +78,10 @@ ylabel('Number of pixels');
 mn = double(mean(e(:)));
 txt = sprintf('Mean %.1f\nVar %.1f',mn,var(e(:)));
 text(mn,max(h.Values)/3,0,txt,'HorizontalAlignment','center','FontSize',20,'Color',[1 1 1])
+
+%% Questions
+% At this point, you can answer Question 1 and 2 in Homework 2: Image
+% Capture and Sensors.
 
 %% Part 2: Experiments with spatial resolution 
 %  We consider the effect of pixel size on the sensor MTF in the following
@@ -89,8 +101,8 @@ scene = sceneCreate('slanted bar', 512);
 
 % First, let's set the scene parameters. 
 scene = sceneAdjustLuminance(scene,10);    % Candelas/m2
-scene = sceneSet(scene,'distance',1);       % meters
-scene = sceneSet(scene,'fov',5);            % Field of view in degrees
+scene = sceneSet(scene,'distance',1);      % Distance of the scene in meters
+scene = sceneSet(scene,'fov',5);           % Field of view in degrees
 % ieAddObject(scene); sceneWindow;
 
 %% Create an optical image with some default optics.
@@ -110,8 +122,9 @@ sensor = sensorSet(sensor,'autoExposure',1); % Set to auto exposure
 
 % We are now ready to set sensor and pixel parameters to produce a variety
 % of captured images.  
-% Set the rendering properties for the monochrome imager. The default does
-% not color convert or color balance, so it is appropriate. 
+
+% Set the image processing properties for the monochrome imager. The
+% default does not color convert or color balance, so it is appropriate.
 ip = ipCreate;
 
 %% Compute the MTF as we change the pixel size
@@ -121,16 +134,19 @@ mtfData = cell(1,length(pSize));
 for ii=1:length(pSize)
     
     fprintf('Pixel size %.1f ',pSize(ii));
-    % Adjust the pixel size (meters)
+    
+    % Adjust the pixel size (meters) on the sensor
     sensor = sensorSet(sensor,'pixel size constant fill factor',[pSize(ii) pSize(ii)]*1e-6);
 
     %Adjust the sensor row and column size so that the sensor has a constant
     %field of view.
-    sensor = sensorSetSizeToFOV(sensor,5,scene,oi);   
+    sensor = sensorSetSizeToFOV(sensor,5,scene,oi); 
+    
     sensor = sensorCompute(sensor,oi);
      
     ip = ipCompute(ip,sensor); % Image processing pipeline
-    mrect = ISOFindSlantedBar(ip);  % This is an option
+    mrect = ISOFindSlantedBar(ip);  % Find the slanted bar region.
+    
     % ieAddObject(ip); ipWindow;
     % ieDrawShape(ip,'rectangle',mrect);
     
@@ -141,7 +157,7 @@ for ii=1:length(pSize)
     
     dx = sensorGet(sensor,'pixel width','mm');
     
-    % Run the ISO 12233 code.
+    % Run the ISO 12233 code. This calculate the MTF from the slanted bar.
     weight = [];
     mtfData{ii} = ISO12233(barImage, dx, weight, 'none');
 end
@@ -163,7 +179,7 @@ end
 
 xlabel('lines/mm');
 ylabel('Relative amplitude');
-title('MTF for different pixel sizes (fixed die size)');
+title('MTF for different pixel sizes');
 hold off; grid on
 
 %%  Show a visual example of the effect of pixel size
@@ -190,6 +206,9 @@ for ii=1:length(pSize)
     ieAddObject(ip); ipWindow;
 end
 
-%%
+
+%% Questions
+% At this point, you can answer Question 3, 4, and 5 in Homework 2: Image
+% Capture and Sensors.
 
 
