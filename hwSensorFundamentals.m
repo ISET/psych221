@@ -97,13 +97,13 @@ pSize = [2 3 5 8];               % Different pixel sizes in microns
 % The slanted bar scene is often used to assess spatial resolution.  We can
 % compute the modulation transfer function (MTF) from the sensor and image
 % processing response to the slanted bar.
-scene = sceneCreate('slanted bar', 512);
+sceneBar = sceneCreate('slanted bar', 512);
 
 % First, let's set the scene parameters. 
-scene = sceneAdjustLuminance(scene,10);    % Candelas/m2
-scene = sceneSet(scene,'distance',1);      % Distance of the scene in meters
-scene = sceneSet(scene,'fov',5);           % Field of view in degrees
-% ieAddObject(scene); sceneWindow;
+sceneBar = sceneAdjustLuminance(sceneBar,10);    % Candelas/m2
+sceneBar = sceneSet(sceneBar,'distance',1);      % Distance of the scene in meters
+sceneBar = sceneSet(sceneBar,'fov',5);           % Field of view in degrees
+% ieAddObject(sceneBar); sceneWindow;
 
 %% Create an optical image with some default optics.
 oi = oiCreate('diffraction limited');
@@ -112,7 +112,7 @@ oi = oiSet(oi,'optics fnumber',fNumber);
 
 % Now, compute the optical image from this scene and the current optical
 % image properties
-oi = oiCompute(scene,oi);
+oi = oiCompute(sceneBar,oi);
 % ieAddObject(oi); oiWindow;
 
 %%  Create a monochrome image sensor array
@@ -140,7 +140,7 @@ for ii=1:length(pSize)
 
     %Adjust the sensor row and column size so that the sensor has a constant
     %field of view.
-    sensor = sensorSetSizeToFOV(sensor,5,scene,oi); 
+    sensor = sensorSetSizeToFOV(sensor,5,sceneBar,oi); 
     
     sensor = sensorCompute(sensor,oi);
      
@@ -185,10 +185,10 @@ hold off; grid on
 %%  Show a visual example of the effect of pixel size
 % You can select a pixel size from the drop down menu on the top.
 
-scene = sceneCreate('freq orient',512);
-fov   = sceneGet(scene,'fov');
+sceneFO = sceneCreate('freq orient',512);
+fov   = sceneGet(sceneFO,'fov');
 oi    = oiCreate('diffraction limited');
-oi    = oiCompute(oi,scene);
+oi    = oiCompute(oi,sceneFO);
 ip    = ipCreate;
 
 % Let's try it with an RGB sensor this time.
@@ -198,7 +198,7 @@ for ii=1:length(pSize)
     
     % Adjust the pixel size (meters)
     sensor = sensorSet(sensor,'pixel size constant fill factor',[pSize(ii) pSize(ii)]*1e-6);
-    sensor = sensorSetSizeToFOV(sensor,fov,scene,oi);
+    sensor = sensorSetSizeToFOV(sensor,fov,sceneFO,oi);
     sensor = sensorCompute(sensor,oi);
    
     ip = ipCompute(ip,sensor);
