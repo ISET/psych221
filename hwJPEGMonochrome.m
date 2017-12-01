@@ -297,37 +297,3 @@ title('Second image')
 %
 % e) If you were evaluating image quality for this image, which method 
 % (c) or (d) would you use?  Describe why you would use this method.
-
-%% 
-compressionLevels = [99 75 50 25 0];
-compressedImages = cell(5,1);
-rmsError = zeros(5,1);
-
-
-for i = 1:length(compressionLevels)
-    
-    Q_factor = compressionLevels(i);
-    q1 = jpeg_qtables(Q_factor,1);
-    imjpeg2 = jpegCompress(im, q1);
-    imjpeg2 = truncate(imjpeg2, 0, 255);
-    
-
-    figure(2);
-    subplot(3,2,i)
-    title(sprintf('Factor = %d',Q_factor));
-    diffImages = abs(imjpeg2 - im);
-    imshow(diffImages,gray(256)); colorbar;
-    
-    figure(1);
-    subplot(3,2,i)
-    imshow(imjpeg2, gray(256));
-    title(sprintf('Factor = %d',Q_factor));
-    rmsError(i) = sqrt(sum(sum((imjpeg2 - im).^2)));
-    compressedImages{i} = imjpeg2;
-
-    
-end
-
-figure(3);
-plot(compressionLevels,rmsError,'x-')
-title('RMS Error vs Compression Level')
