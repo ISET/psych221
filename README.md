@@ -4,7 +4,7 @@ This repository includes the homework scripts for our class.  They rely on the I
 
 Please clone this repository as
 
-    git clone https://github.com/scienstanford/psych221.git
+    git clone https://github.com/isetcam/psych221.git
 
 We may, from time to time, need to update these files during the class.  If you need to update your local copy, change into your local directory and type
 
