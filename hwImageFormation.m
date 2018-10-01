@@ -31,6 +31,7 @@ viewingDistance = 0.5
 imageHeight = 0.05
 %% Geometric angle calculation
 %%
+% Here we draw out the image height and viewing distance in a plot.
 vcNewGraphWin;
 plot(viewingDistance,0,'o'); hold on
 line([0 viewingDistance 0 0],[0 0 imageHeight 0]);
@@ -48,8 +49,9 @@ grid on
 %%
 phi = atand(imageHeight/viewingDistance)
 
-% Suppose we are looking at a printer with 600 dots per inch (dpi). Oddly, dpi is a
-% common specification for printers
+% Suppose we are looking at a printer with 600 dots per inch (dpi). Oddly,
+% dpi is a common specification for printers. Let's calculate the size of
+% each dot in visual angle for this particular setup.
 dpi = 600;
 
 % ISET has a convenient function to convert these units into meters per dot.
@@ -67,16 +69,17 @@ minPerDot = 60*degPerDot;
 % and 60 sec of visual angle per min,
 secPerDot = 60*minPerDot;
 
-%% 
 % Perceptual experiments show that people see a difference between two lines 
 % that are offset by 6 sec of visual angle.  Hence, the dot spacing is wider than 
 % the spacing that can be discriminated by people. 
 % 
-% At this point, you can answer Questions #1 and #2 on "Homework 1: Image 
-% Formation."
-% 
 % The live script hwImageFormationWindow.mlx provides you with more tools 
 % to see this type of calculation using ISET windows and more advanced calculations.
+
+%% 
+% At this point, you can answer Questions #1 and #2 on "Homework 1: Image 
+% Formation."
+
 %% The Westheimer linespread function
 % Westheimer was one of the first to estimate the linespread function of the 
 % human optics. He specified the spread of light at the back of the eye when the 
@@ -162,7 +165,7 @@ xlabel('Sec of arc'), ylabel('Retinal image irradiance')
 %% 
 % While the original image varies from black to white, after blurring by 
 % the eye's optics, there is only a small amount of residual variation in the 
-% retinal image.  Because of the blurring, the retinal image is much more likely 
+% retinal image.  Because of the blurring, the retinal image is much more like 
 % the image of a bar than it is the image of a set of individual lines.
 % 
 % In fact, the dots placed on the page are not perfect line samples.  Each 
@@ -218,7 +221,7 @@ for i = 1:length(freq)
     retIm = convolvecirc(harmonic,ls);
     subplot(2,2,i)
     plot(retIm), grid on, set(gca,'ylim',[-1 1],'xlim',[0 64]);
-    xlabel('Arc sec')
+    xlabel('Arc min')
     peak(i) = max(retIm(:));
 end
 %% MTF - Calculated two ways
@@ -362,8 +365,6 @@ grid on
 mean(retIm(50,:),2)
 mean(retIm(200,:),2)
 
-%% 
-% At this point, you can answer Questions #3 on "Homework 1: Image Formation."
 %% Chromatic aberration in the frequency domain
 % Finally, let's make a few graphs of the modulation transfer function of the 
 % eye's optical system for individual wavelengths.  For short wavelength lights, 
@@ -393,6 +394,9 @@ title('Modulation transfer functions for 3 wavelengths');
 % the opposite phase compared to the input harmonic.  Hence, the amplitude is 
 % represented by a negative number.  This can be illustrated using slide projector, 
 % and the phenomenon is called "spurious resolution."
+%% 
+% At this point, you can answer Questions #3 on "Homework 1: Image Formation."
+
 %% More modern Linespreads, Pointspreads, and MTFs
 % Ijspeert and others in the Netherlands developed a more extensive set of functions 
 % to predict the basic image formation variables in the average human eye.  The 
@@ -451,7 +455,8 @@ xlabel('Position (min)'), ylabel('Intensity'), title('Linespread')
 grid on
 %% Comparison of the MTFs with the Williams data
 %%
-% Data from colleagues
+% We can compare Ijspeert and Westheimer's calculations with experimental
+% data collected from colleagues.
 load('williams','dhb','drw','rnb','dataF');
 
 vcNewGraphWin;
@@ -466,7 +471,8 @@ grid on; hold off; legend('Ijspeert','Westheimer','Data')
 %% What does the pointspread function look like in 2D?
 %%
 % The PSF is circularly symmetric.  So, we can accumulate
-% the 1D values into a 2D surface.
+% the 1D values into a 2D surface and convert Ijspeert's line spread
+% function to a point spread function.
 angleInRad2D = linspace(min(angleInRad)/4,max(angleInRad)/4,length(angleInRad)/4);
 nSamples = length(angleInRad2D);
 [X,Y] = meshgrid(angleInRad2D,angleInRad2D);
@@ -492,17 +498,22 @@ vcNewGraphWin;
 colormap(autumn(128));
 surf(angleInRad2D,angleInRad2D,iPSF2D);
 %% Using ISET to visualize defocus of diffraction limited optics
-%%
+%% 
+% In the next few sections, we're going to start using ISET to experiment
+% with diffraction limited optics (i.e. "perfect" optics with only
+% diffraction effects.)
+
 % Create a scene comprising a multispectral line, with equal photons
 scene = sceneCreate('line ep',128);    % A thin line, equal photon radiance at each wavelength
 scene = sceneSet(scene,'fov', 0.5);    % Small field of view (deg)
 ieAddObject(scene); sceneWindow;       % Save it in the database and show
 
-% Plot the scene data
+% Plot the scene radiance
 scenePlot(scene,'radiance hline',[64 64]);
 set(gca,'xlim',[-1 1]);  % Plot radiance at central 1 mm
 
 % Type doc scenePlot to see other plotting options
+
 %% Simulate the line passing through diffraction-limited optics
 %%
 oi = oiCreate;               % Default optics is diffraction limited
