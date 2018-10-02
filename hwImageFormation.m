@@ -509,18 +509,13 @@ end
 vcNewGraphWin;
 colormap(autumn(128));
 surf(angleInRad2D,angleInRad2D,iPSF2D);
-<<<<<<< HEAD
 
-%% Using ISETCam to visualize defocus of diffraction limited optics
-%%
-=======
 %% Using ISET to visualize defocus of diffraction limited optics
 %% 
 % In the next few sections, we're going to start using ISET to experiment
 % with diffraction limited optics (i.e. "perfect" optics with only
 % diffraction effects.)
 
->>>>>>> cfa842985e280c61b40215bfe75f78ed26098ff7
 % Create a scene comprising a multispectral line, with equal photons
 scene = sceneCreate('line ep',128);    % A thin line, equal photon radiance at each wavelength
 scene = sceneSet(scene,'fov', 0.5);    % Small field of view (deg)
