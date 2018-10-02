@@ -14,17 +14,21 @@
 
 %% Initialize ISET variables and structures
 %%
-% ISETCam is a way to help you compute basic quantities related to
-% imaging.  The vast majority of ISETCam are its functions that
-% compute different quantities.  A second and important part of
-% ISETCam are the methods for visualizing the computations and
-% monitoring the system parameters.
+% ISETCam helps you compute basic quantities related to imaging.  The vast
+% majority of the ISETCam code consists of functions that compute different
+% quantities. A second important part of ISETCam are the methods for
+% visualizing the computations and parameters.  The visualization code is
+% also very helpful when you are trying to debug your own functions and
+% scripts.
 %
 
-% To help you 
-
-% The ieInit function closes windows and can clear your variables,
-% depending on how you set your ISET preferences.
+% To help you manage your calculations, ISETCam mains a global structure
+% that stores different types of (scenes, optical images) data and makes it
+% easy to render the data in the ISETCam windows.
+%
+% The ieInit function sets up the global structure, closes windows and can
+% clear your variables. The exact behavior of ieInit depends on how you set
+% your ISET preferences. 
 
 % Here is how your preferences are set
 getpref('ISET')   % Current status
