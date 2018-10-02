@@ -70,8 +70,5 @@ ieAddObject(oi); oiWindow;
 
 oiPlot(oi,'irradiance hline',[80 80]);
 set(gca,'xlim',[-10 10]);  % Plot radiance at central 1 mm
-%% Questions to Think About
-% At this point, you can answer Questions #4, #5, and #6 on "Homework
-% 1: Image Formation."
 
 %%

@@ -16,7 +16,7 @@
 % See also: hwImageFormationHuman
 % 
 
-%% Clear the ISET database
+%% Clear the ISETCam database
 ieInit;
 
 %% Visual angles
@@ -45,12 +45,14 @@ vcNewGraphWin;
 plot(viewingDistance,0,'o'); hold on
 line([0 viewingDistance 0 0],[0 0 imageHeight 0]);
 axis equal
-set(gca,'xlim',[-0.1 viewingDistance + 0.1],'ylim',[-0.1 imageHeight + 0.1]), grid on
+set(gca,'xlim',[-0.1 viewingDistance + 0.1],'ylim',[-0.1 imageHeight + 0.1])
 xlabel('Viewing Distance (m)')
 ylabel('Image height (m)')
 grid on
 %% In degrees, the viewing angle, phi, satisfies
 % 
+% This is a formula, which shows up in the livescript but not here.
+%
 % $$<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi 
 % mathvariant="normal">tan</mi><mrow><mo>(</mo><mrow><mi>?</mi></mrow><mo>)</mo></mrow><mo>=</mo><mfrac><mrow><mi 
 % mathvariant="normal">opposite</mi></mrow><mrow><mi mathvariant="normal">adjacent</mi></mrow></mfrac></mrow></math>$$
@@ -99,6 +101,8 @@ secPerDot = 60*minPerDot;
 % minutes of arc.  For a 3mm pupil size (and the pupil size matters) he proposed 
 % the formula
 % 
+% This is a formula, which shows up in the livescript but not here.
+%
 % $$<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi 
 % mathvariant="normal">ls</mi><mrow><mo>(</mo><mrow><mi mathvariant="italic">x</mi></mrow><mo>)</mo></mrow><mo>=</mo><mn>0</mn><mo>.</mo><mn>47</mn><mo>*</mo><mi 
 % mathvariant="normal">exp</mi><mrow><mo>(</mo><mrow><mo>?</mo><mn>3</mn><mo>.</mo><mn>3</mn><mo>*</mo><msup><mrow><mi 
@@ -121,18 +125,16 @@ vcNewGraphWin;
 plot(xSec,ls)
 set(gca,'xlim',[-240 240],'xtick',(-240:60:240)), grid  on
 xlabel('Arc sec'), ylabel('Responsivity'), title('Westheimer Linespread')
-%% Thought question
-% In the previous section, we calculated the spacing of the dots in a 600 dpi 
-% printer (secPerDot). Compare that spacing with the sec of visual angle apart.  
-% Does this linespread help you think about whether this separation of two points 
-% should be visible to a person?
+
 %% The Westheimer function and the Fourier Transform (FFT)
-% The modulation transfer function (MTF) describes how the amplitude of each 
-% harmonic is scaled by the optics.  If we know the linespread function, we can 
-% calculate the MTF using the Fast Fourier Transform. In this code snippet, we 
-% use the function westheimerLSF to estimate the human MTF.  That function takes 
-% its input as a spatial variable in sec of arc
-%%
+%
+% The modulation transfer function (MTF) describes how the amplitude
+% of each harmonic is scaled by the optics.  If we know the linespread
+% function, we can calculate the MTF using the Fast Fourier Transform.
+% In this code snippet, we use the function westheimerLSF to estimate
+% the human MTF.  That function takes its input as a spatial variable
+% in sec of arc
+
 xSec = -300:300;    % 600 sec, total = 10 arc min
 westheimerMTF = abs(fft(westheimerLSF(xSec)));
 
@@ -143,11 +145,13 @@ semilogy(freq,westheimerMTF(1:12)); grid on;
 xlabel('Freq (cpd)'); ylabel('Relative contrast');
 set(gca,'ylim',[0 1.1])
 title('Westheimer MTF');
+
 %% Convolution of the image and linespread
-% We can estimate the retinal image from a document printed at 600 dpi using 
-% the following simple convolution calculation. Suppose the image spans 0.2 deg 
-% and has a dot every 30 arc sec.
-%%
+%
+% We can estimate the retinal image from a document printed at 600 dpi
+% using the following simple convolution calculation. Suppose the
+% image spans 0.2 deg and has a dot every 30 arc sec.
+
 % Make a 1-d image
 imageWidth = 0.2;               % deg
 secPerDeg = 60*60;
@@ -201,16 +205,17 @@ plot(retIm), axis square, grid on
 title('Retinal image of blurred lines')
 xlabel('Sec of arc'), ylabel('Retinal image irradiance')
 %% Thought question
-% The question you might ask yourself now is this: will those small ripples 
-% be detectable by the observers?  How can we tell? You might also ask what will 
-% happen when we view the page at 6 inches, or at 24 inches.  What if we increase 
-% the printer resolution to 1200 dpi?  What if we introduce some ability to modulate 
-% the density of the ink and hence the light scattered back to the eye? We can 
-% answer these kinds of questions using ISET simulations. 
+% The question you might ask yourself now is this: will those small
+% ripples be detectable by the observers?  How can we tell? You might
+% also ask what will happen when we view the page at 6 inches, or at
+% 24 inches.  What if we increase the printer resolution to 1200 dpi?
+% What if we introduce some ability to modulate the density of the ink
+% and hence the light scattered back to the eye? We can answer these
+% kinds of questions using ISET simulations.
 %% The linespread in the frequency domain (MTF)
-% Let's make a new linespread function that is sampled less finely and thus 
-% easier to compute with.  Also, we make it extend over 1 deg (60 min) so the 
-% Fourier Transform is easier to interpret
+% Let's make a new linespread function that is sampled less finely and
+% thus easier to compute with.  Also, we make it extend over 1 deg (60
+% min) so the Fourier Transform is easier to interpret
 %%
 
 xMin = -30:1:29;
@@ -237,11 +242,11 @@ for i = 1:length(freq)
     peak(i) = max(retIm(:));
 end
 %% MTF - Calculated two ways
-% Using the above, we can develop some intuition about the MTF. We calculate 
-% it in two different ways: first, we plot the amplitude of the retinal cosinusoid, 
-% and its amplitude decreases with the input frequency.  Next, we calculate the 
-% Fourier Transform of the linespread and plot the values at these frequencies 
-% (red circles). 
+% Using the above, we can develop some intuition about the MTF. We
+% calculate it in two different ways: first, we plot the amplitude of
+% the retinal cosinusoid, and its amplitude decreases with the input
+% frequency.  Next, we calculate the Fourier Transform of the
+% linespread and plot the values at these frequencies (red circles).
 %%
 vcNewGraphWin;
 plot([0 freq],[1 peak],'-');      % At freq = 0 the MTF is 1, by definition
@@ -254,11 +259,12 @@ mtf = abs(fft(ls));
 hold on, plot(freq,mtf(freq + 1),'ro');
 hold off
 %% The pointspread and linespread
-% When working with two-dimensional inputs, we must consider the pointspread 
-% function, that is the response to an input that is a point of light. A standard 
-% formula for the cross-section of the pointspread function of the human eye for 
-% a 3mm pupil is also provided by Westheimer.  We can compare the linespread and 
-% the cross-section of the pointspread in the following graphs.
+% When working with two-dimensional inputs, we must consider the
+% pointspread function, that is the response to an input that is a
+% point of light. A standard formula for the cross-section of the
+% pointspread function of the human eye for a 3mm pupil is also
+% provided by Westheimer.  We can compare the linespread and the
+% cross-section of the pointspread in the following graphs.
 
 xSec = -300:300;
 xMin = xSec/60;
@@ -289,12 +295,12 @@ colormap(jet(256)), mesh(ps)
 % To see the pointspread as an image, rather than as a mesh plot,
 % you might make this figure: colormap(gray(32)),imagesc(ps), axis image
 %% Chromatic aberration: How the linespread varies with wavelength
-% The linespread varies quite strongly with wavelength.  When the eye is in 
-% good focus at 580 nm (yellow-part of the spectrum) the light in the short-wavelength 
-% (400-450nm) is blurred quite strongly and light in the long-wavelength part 
-% of the spectrum is blurred, too, though somewhat less.  We can calculate the 
-% linespread as a function of wavelength (Marimont and Wandell, 1993) from basic 
-% principles.  
+% The linespread varies quite strongly with wavelength.  When the eye
+% is in good focus at 580 nm (yellow-part of the spectrum) the light
+% in the short-wavelength (400-450nm) is blurred quite strongly and
+% light in the long-wavelength part of the spectrum is blurred, too,
+% though somewhat less.  We can calculate the linespread as a function
+% of wavelength (Marimont and Wandell, 1993) from basic principles.
 %%
 
 % The  linespreads a various wavelengths are contained in the data file 
@@ -342,7 +348,6 @@ imshow(im(ones(100,1), 1:128));
 % of the linespread functions in lineSpread size(lineSpread = 361,65).  This results 
 % in 361 images (one for each wavelength).
 
-
 retIm = conv2(im, lineSpread, 'full');
 
 % We must remember the size (in deg) of each sample point this way.
@@ -356,7 +361,6 @@ X = (-size(retIm,2)/2 : ((size(retIm, 2)/2) - 1)) / 64;
 % high amplitude ripples that are quite distinct.  Hence, the short-wavelength 
 % variation would be very hard to detect in the retinal image, while the 570 nm 
 % component would be quite easy to detect.
-
 
 vcNewGraphWin;
 subplot(2,1,1)
@@ -378,14 +382,13 @@ mean(retIm(50,:),2)
 mean(retIm(200,:),2)
 
 %% Chromatic aberration in the frequency domain
-% Finally, let's make a few graphs of the modulation transfer function of the 
-% eye's optical system for individual wavelengths.  For short wavelength lights, 
-% high spatial frequency contrast is attenuated a lot by the optical path of the 
-% eye. 
+% Finally, let's make a few graphs of the modulation transfer function
+% of the eye's optical system for individual wavelengths.  For short
+% wavelength lights, high spatial frequency contrast is attenuated a
+% lot by the optical path of the eye.
 % 
-% Load the MTFs for wavelengths from 370-730nm.  These were calculated using 
-% the methods in Marimont and Wandell that are in a script in the /local/class/psych221/tutorials/chromAb 
-% sub-directory.
+% Load the MTFs for wavelengths from 370-730nm.  These were calculated
+% using the methods in Marimont and Wandell.
 %%
 load('combinedOtf','combinedOtf','sampleSf');
 
@@ -406,8 +409,6 @@ title('Modulation transfer functions for 3 wavelengths');
 % the opposite phase compared to the input harmonic.  Hence, the amplitude is 
 % represented by a negative number.  This can be illustrated using slide projector, 
 % and the phenomenon is called "spurious resolution."
-%% 
-% At this point, you can answer Questions #3 on "Homework 1: Image Formation."
 
 %% More modern Linespreads, Pointspreads, and MTFs
 % Ijspeert and others in the Netherlands developed a more extensive set of functions 
@@ -420,7 +421,7 @@ title('Modulation transfer functions for 3 wavelengths');
 %%
 
 age = 20;               % Subject's age
-pupil = 1.5; 		% diameter in mm
+pupil = 1.5; 		    % diameter in mm
 pigmentation = 0.142; 	% Caucasian
 freqIndexRange = 1:50; 	% The spatial frequency range
 
@@ -510,42 +511,14 @@ vcNewGraphWin;
 colormap(autumn(128));
 surf(angleInRad2D,angleInRad2D,iPSF2D);
 
-%% Using ISET to visualize defocus of diffraction limited optics
-%% 
-% In the next few sections, we're going to start using ISET to experiment
+%% Using ISETCam to visualize optics calculations
+%
+% In the script hwISETCam we show how to use ISETCam to experiment
 % with diffraction limited optics (i.e. "perfect" optics with only
-% diffraction effects.)
-
-% Create a scene comprising a multispectral line, with equal photons
-scene = sceneCreate('line ep',128);    % A thin line, equal photon radiance at each wavelength
-scene = sceneSet(scene,'fov', 0.5);    % Small field of view (deg)
-ieAddObject(scene); sceneWindow;       % Save it in the database and show
-
-% Plot the scene radiance
-scenePlot(scene,'radiance hline',[64 64]);
-set(gca,'xlim',[-1 1]);  % Plot radiance at central 1 mm
-
-% Type doc scenePlot to see other plotting options
-
-%% Simulate the line passing through diffraction-limited optics
-%%
-oi = oiCreate;               % Default optics is diffraction limited
-oi = oiCompute(oi,scene);
-ieAddObject(oi); oiWindow;
-
-% Plot the line spread as a function of wavelength
-oiPlot(oi,'irradiance hline',[80 80]);
-set(gca,'xlim',[-10 10]);  % Plot radiance at central 10 um
-%% Now change the f-number of the optics and do it again
-%%
-oi = oiSet(oi,'optics fnumber',12);
-oi = oiCompute(oi,scene);
-ieAddObject(oi); oiWindow;
-
-oiPlot(oi,'irradiance hline',[80 80]);
-set(gca,'xlim',[-10 10]);  % Plot radiance at central 1 mm
-%% Questions to Think About
-% At this point, you can answer the Questions on "Homework 1: Image
-% Formation."
+% diffraction effects.)  
+%
+% That script will help you see why ISETCam framework simplifies your
+% calculations.  The code underlying the functions there is a lot like
+% the basic calculations shown earlier in this script.
 
 %%
