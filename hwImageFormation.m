@@ -1,34 +1,43 @@
 %% Topics on image formation
-% * Visual angle
-% * Circle of confusion
-% * Linespread function and convolution
-% * Harmonic functions and blurring
-% * Pointspread functions
-% * Chromatic aberration
-% * Defocus and f-numbers
-% 
-% See also: hwImageFormationHuman
+%
+%  * Visual angle
+%  * Circle of confusion
+%  * Linespread function and convolution
+%  * Harmonic functions and blurring
+%  * Pointspread functions
+%  * Chromatic aberration
+%  * Defocus and f-numbers
+%  * See how to use ISETCam to do these calculations
 % 
 % Date: 01.02.96 (First drafted) 
 % 
 % Duration: 60 minutes
-%% Clear the ISET database
-
-ieInit;
-%% Visual angles
-% There are various ways to specify the physical characteristics of an image. 
-% Engineers often describe the image in terms of the physical size and distance, 
-% say a paper 25 cm wide at a distance of 0.5 m from the camera.
+%
+% See also: hwImageFormationHuman
 % 
-% Vision scientists find it very useful to specify the image in terms of 
-% the visual angle the image sweeps out at the camera (or eye). There is a relationship 
-% between the physical description of the object and the the degrees of visual 
-% angle. Suppose we read the paper at a viewing distance (meters)
-%%
-viewingDistance = 0.5
 
-% Imagine a character that is 50 mm (0.05 m) high
-imageHeight = 0.05
+%% Clear the ISET database
+ieInit;
+
+%% Visual angles
+%
+% There are various ways to specify the physical characteristics of an
+% image. Engineers often describe the image in terms of the physical
+% size and distance, say a paper 25 cm wide at a distance of 0.5 m
+% from the camera.
+% 
+% Vision scientists find it very useful to specify the image in terms
+% of the visual angle the image sweeps out at the camera (or eye).
+% There is a relationship between the physical description of the
+% object and the the degrees of visual angle. Suppose we read the
+% paper at a viewing distance (meters)
+
+%%  Set up the object size
+
+% Imagine a character that half a meter away and is 50 mm (0.05 m) high
+viewingDistance = 0.5;   % In meters
+imageHeight = 0.05;
+
 %% Geometric angle calculation
 %%
 vcNewGraphWin;
@@ -39,8 +48,7 @@ set(gca,'xlim',[-0.1 viewingDistance + 0.1],'ylim',[-0.1 imageHeight + 0.1]), gr
 xlabel('Viewing Distance (m)')
 ylabel('Image height (m)')
 grid on
-%% 
-% In degrees, the viewing angle, phi, satisfies
+%% In degrees, the viewing angle, phi, satisfies
 % 
 % $$<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi 
 % mathvariant="normal">tan</mi><mrow><mo>(</mo><mrow><mi>?</mi></mrow><mo>)</mo></mrow><mo>=</mo><mfrac><mrow><mi 
@@ -48,17 +56,19 @@ grid on
 %%
 phi = atand(imageHeight/viewingDistance)
 
-% Suppose we are looking at a printer with 600 dots per inch (dpi). Oddly, dpi is a
-% common specification for printers
+% Suppose we are looking at a printer with 600 dots per inch (dpi).
+% Oddly, dpi is a common specification for printers
 dpi = 600;
 
-% ISET has a convenient function to convert these units into meters per dot.
+% ISET has a convenient function to convert these units into meters
+% per dot.
 meterPerDot = dpi2mperdot(dpi,'meters');
 
 % So there are this many dots in the imageHeight
 nDots = imageHeight/meterPerDot;
 
-% and each dot takes up this many degrees of visual angle (for small angles)
+% and each dot takes up this many degrees of visual angle (for small
+% angles)
 degPerDot = phi/nDots;
 
 % There are 60 min of visual angle per deg,
@@ -67,7 +77,9 @@ minPerDot = 60*degPerDot;
 % and 60 sec of visual angle per min,
 secPerDot = 60*minPerDot;
 
-%% 
+%% Perception
+%%
+%
 % Perceptual experiments show that people see a difference between two lines 
 % that are offset by 6 sec of visual angle.  Hence, the dot spacing is wider than 
 % the spacing that can be discriminated by people. 
@@ -77,7 +89,9 @@ secPerDot = 60*minPerDot;
 % 
 % The live script hwImageFormationWindow.mlx provides you with more tools 
 % to see this type of calculation using ISET windows and more advanced calculations.
+
 %% The Westheimer linespread function
+%%
 % Westheimer was one of the first to estimate the linespread function of the 
 % human optics. He specified the spread of light at the back of the eye when the 
 % input is a line.  He specified the line spread in terms of a variable, x,  in 
@@ -491,7 +505,8 @@ end
 vcNewGraphWin;
 colormap(autumn(128));
 surf(angleInRad2D,angleInRad2D,iPSF2D);
-%% Using ISET to visualize defocus of diffraction limited optics
+
+%% Using ISETCam to visualize defocus of diffraction limited optics
 %%
 % Create a scene comprising a multispectral line, with equal photons
 scene = sceneCreate('line ep',128);    % A thin line, equal photon radiance at each wavelength
@@ -521,5 +536,7 @@ ieAddObject(oi); oiWindow;
 oiPlot(oi,'irradiance hline',[80 80]);
 set(gca,'xlim',[-10 10]);  % Plot radiance at central 1 mm
 %% Questions to Think About
-% At this point, you can answer Questions #4, #5, and #6 on "Homework 1: Image 
-% Formation."
+% At this point, you can answer Questions #4, #5, and #6 on "Homework
+% 1: Image Formation."
+
+%%
