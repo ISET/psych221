@@ -88,12 +88,8 @@ secPerDot = 60*minPerDot;
 % lines that are offset by 6 sec of visual angle.  Hence, the dot
 % spacing is wider than the spacing that can be discriminated by
 % people.
-% 
-% The live script hwImageFormationWindow.mlx provides you with more
-% tools to see this type of calculation using ISET windows and more
-% advanced calculations.
 
-%% The Westheimer linespread function
+%% The Westheimer linespread function (human optics)
 %%
 % Westheimer was one of the first to estimate the linespread function of the 
 % human optics. He specified the spread of light at the back of the eye when the 
