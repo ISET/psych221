@@ -79,10 +79,6 @@ mn = double(mean(e(:)));
 txt = sprintf('Mean %.1f\nVar %.1f',mn,var(e(:)));
 text(mn,max(h.Values)/3,0,txt,'HorizontalAlignment','center','FontSize',20,'Color',[1 1 1])
 
-%% Questions
-% At this point, you can answer Question 1 and 2 in Homework 2: Image
-% Capture and Sensors.
-
 %% Part 2: Experiments with spatial resolution 
 %  We consider the effect of pixel size on the sensor MTF in the following
 %  sections.
@@ -206,9 +202,5 @@ for ii=1:length(pSize)
     ieAddObject(ip); ipWindow;
 end
 
-
-%% Questions
-% At this point, you can answer Question 3, 4, and 5 in Homework 2: Image
-% Capture and Sensors.
 
 
