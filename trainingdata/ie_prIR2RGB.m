@@ -15,6 +15,8 @@
 
 %% Basic parameters to keep things organized
 
+rdt = RdtClient('isetbio');
+
 wave = 415:10:940;
 fov = 10;
 
@@ -63,16 +65,6 @@ irSensor = sensorCompute(irSensor,oi);
 % the oiCompute only needs to be run once.
 ieAddObject(rgbSensor); sensorWindow;
 ieAddObject(irSensor); sensorWindow;
-
-%%  2002 and 2004 from Manchester are only out to 750.
-
-rdt.crp('/resources/scenes/hyperspectral/manchester_database/2004'); % change remote path
-a = rdt.listArtifacts('type','mat','print',true);
-
-data  = rdt.readArtifacts(a(2));
-
-scene = sceneFromBasis(data{1});
-ieAddObject(scene); sceneWindow;
 
 %% Show them image processed
 
