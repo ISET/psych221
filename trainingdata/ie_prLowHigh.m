@@ -19,6 +19,7 @@
 
 %%
 ieInit;
+rdt = RdtClient('isetbio');
 fov = 5;
 
 %%  Figure out some scenes on the RDT
@@ -28,7 +29,7 @@ rdt.crp('/resources/scenes/multiband/scien/2008'); % change remote path
 % rdt.listRemotePaths
 a = rdt.listArtifacts('type','mat','print',true);
 %%
-data = rd.readArtifacts(a(1));
+data = rdt.readArtifacts(a(1));
 scene = sceneFromBasis(data{1});
 
 % Treat the scene as small

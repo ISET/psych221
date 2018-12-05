@@ -53,14 +53,16 @@ data  = rdt.readArtifacts(a(5));
 
 scene = sceneFromBasis(data{1});
 scene = sceneInterpolateW(scene,wave);
+% ieAddObject(scene); sceneWindow;
 
 oi = oiCreate;
 oi = oiCompute(oi,scene);
+% ieAddObject(oi); oiWindow;
 
 %% 
 
 rgbSensor = sensorCompute(rgbSensor,oi);
-irSensor = sensorCompute(irSensor,oi);
+irSensor  = sensorCompute(irSensor,oi);
 
 % the oiCompute only needs to be run once.
 ieAddObject(rgbSensor); sensorWindow;
