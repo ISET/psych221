@@ -1,10 +1,11 @@
 %%  Using ISETCam
 %
-% This script spends some space and time explaining ISETCam.  The most
-% important part of this script is teaching you how to search for
-% functions and explanations about using ISETCam.  It also contains
-% some basic examples.  Many many more examples can be found in the
-% tutorials and scripts.
+% This script is a VERY brief introduction to ISETCam.
+%
+% The most important part of this script is teaching you how to search
+% for functions and explanations about using ISETCam.  The script
+% contains some basic examples, but MANY many more examples can be
+% found in the tutorials and scripts.
 %
 % Wandell, October 1, 2018
 %
