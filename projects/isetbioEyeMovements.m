@@ -24,49 +24,56 @@ scene = sceneCreate('slanted edge');
 %%  A standard human eye ball
 oi = oiCreate;
 oi = oiCompute(oi,scene);
+oiWindow(oi);
 
-%% Rectangular mosaic
+%% Rectangular mosaic - only one cone type
+
+nEyeMovements = 50;
 cones = coneMosaic;
 cones.spatialDensity = [0,1,0,0];   % Only L cones
 cones.integrationTime = 0.001;      % One ms integration time
-cones.emGenSequence(50);            % 50 eye movements (50 ms)
+cones.emGenSequence(nEyeMovements,'rSeed',[]); % Randomize eye movements
 
-%%
+%% 
 cones.compute(oi);
 
 %% Not needed, but nice to see
-cones.window;
+% cones.window;
 
 %%  Get the mean absorptions across time
 absorptions = cones.absorptions;
-edgeImage = mean(absorptions,3);
-% ieNewGraphWin; imagesc(edgeImage);
+edgeImage   = absorptions(:,:,1);
 
 % ISO12233 requires cropping the image so that the dge is taller than wide
-% This is a specific way to do it.  But we need a more general way.
-sz = size(edgeImage);
-xmin = 30;
-ymin= 15;
-width  = 35;
-height = 50;
+% This is a specific way to find the rect for the image
+rect = ISOFindSlantedBar(edgeImage);
+% ieNewGraphWin; imagesc(edgeImage); colormap(gray); axis image
+% h = drawrectangle('Position',rect);
 
-edgeImage = imcrop(edgeImage,[xmin ymin width height]);
-ieNewGraphWin; imagesc(edgeImage); axis image; colormap(gray);
+% Now the whole set of eye movements
+edgeImage = mean(absorptions,3);
+edgeImage = imcrop(edgeImage,rect);
+% ieNewGraphWin; imagesc(edgeImage); axis image; colormap(gray);
 
 %% Call the ISO routine
 
 % It returns the key parameters
 deltaX = cones.patternSampleSize(1)*1e3;
-mtf = ISO12233(edgeImage,deltaX,[1 0 0]);
-colormap(gray); colorbar
+mtf = ISO12233(edgeImage,deltaX,[],'none');
 
 %% Here is a plot only up to the Nyquist sampling frequency
 ieNewGraphWin;
 keep = mtf.freq < mtf.nyquistf;
-plot(mtf.freq(keep),mtf.mtf(keep),'k-','linewidth',2);
+
+mmPerDeg = 0.2852; 
+cpd = mtf.freq*mmPerDeg;
+% Approximate (assuming a small FOV and an focal length of 16.32 mm)
+plot(cpd,mtf.mtf,'k-','Linewidth',2);
+xlabel('Spatial Frequency (cycles/deg)');
+ylabel('Contrast Reduction (SFR)');
 grid on;
-xlabel('Cycles/mm');
-ylabel('Contrast reduction');
+axis([0 60 0 1])
+
 
 %%
 
