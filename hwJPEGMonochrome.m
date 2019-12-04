@@ -38,7 +38,7 @@ title('Original Image Data');
 % To understand the calculation we will first trace what happens
 % to a single block. Here is an 8x8 block from the image
 
-block = im(89:96, 105:112)
+block = im(89:96, 105:112);
 vcNewGraphWin; hist(block(:))
 title('Histogram of 8x8 block near image center');
 xlabel('Pixel value');
@@ -52,11 +52,11 @@ ylabel('Count');
 
 load jpegFiles/dctMatrix;
 
-% Each column of this matrix is a cos function at a different
+% Each row of this matrix is a cos function at a different
 % spatial frequency.  But they are very coarsely sampled and so
 % they don't really look familiar.
 % 
-plot(1:size(dctMatrix,1),dctMatrix(:,[1 3 5 7]))
+plot(1:size(dctMatrix,1),dctMatrix([1 3 5 7],:))
 title('Selected DCT basis functions');
 
 % The DCT is separable, so to obtain the dct coefficients for
