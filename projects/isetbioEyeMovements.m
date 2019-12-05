@@ -20,6 +20,7 @@ ieInit
 
 %%  The slanted bar scene
 scene = sceneCreate('slanted edge');
+sceneWindow(scene);
 
 %%  A standard human eye ball
 oi = oiCreate;
@@ -56,8 +57,6 @@ edgeImage = imcrop(edgeImage,rect);
 % ieNewGraphWin; imagesc(edgeImage); axis image; colormap(gray);
 
 %% Call the ISO routine
-
-% It returns the key parameters
 deltaX = cones.patternSampleSize(1)*1e3;
 mtf = ISO12233(edgeImage,deltaX,[],'none');
 
@@ -77,7 +76,7 @@ axis([0 60 0 1])
 
 %%
 
-
+%%
 
 
 
