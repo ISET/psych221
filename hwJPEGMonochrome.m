@@ -231,7 +231,7 @@ imshow(imjpeg2, gray(256));
 %%
 close all;
 
-figure(1);
+figure;
 imshow(im,gray(256));
 title('Original Image')
 
