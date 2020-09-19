@@ -18,7 +18,7 @@ ieInit
 % labels.
 
 % load macbethChart;
-fName = fullfile(isetRootPath,'data','surfaces','macbethChart.mat');
+fName = fullfile(isetRootPath,'data','surfaces','reflectances','macbethChart.mat');
 wave = 400:700;
 macbethChart = ieReadSpectra(fName,wave);
 
@@ -208,4 +208,4 @@ macbethCameraColorMap = ieScale(macbethCameraRGB,0,1)';
 vcNewGraphWin; colormap(macbethCameraColorMap)
 image(macbethImage); axis image
 
-%%
+%% END
