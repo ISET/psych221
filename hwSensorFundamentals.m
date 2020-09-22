@@ -46,7 +46,7 @@ oi = oiCompute(oi,uscene); % Pass the scene through the optics
 % Set up a monochrome sensor with a field of view that is smaller than the
 % scene
 msensor = sensorCreate('monochrome');
-msensor = sensorSetSizeToFOV(msensor,5, oi);
+msensor = sensorSetSizeToFOV(msensor,5,oi);
 
 % Set the exposure duration to be short (1ms). You can experiment with this
 % if you'd like.
