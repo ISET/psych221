@@ -46,7 +46,7 @@ oi = oiCompute(oi,uscene); % Pass the scene through the optics
 % Set up a monochrome sensor with a field of view that is smaller than the
 % scene
 msensor = sensorCreate('monochrome');
-msensor = sensorSetSizeToFOV(msensor,5,uscene,oi);
+msensor = sensorSetSizeToFOV(msensor,5, oi);
 
 % Set the exposure duration to be short (1ms). You can experiment with this
 % if you'd like.
@@ -136,7 +136,7 @@ for ii=1:length(pSize)
 
     %Adjust the sensor row and column size so that the sensor has a constant
     %field of view.
-    sensor = sensorSetSizeToFOV(sensor,5,sceneBar,oi); 
+    sensor = sensorSetSizeToFOV(sensor,5,oi); 
     
     sensor = sensorCompute(sensor,oi);
      
@@ -194,7 +194,7 @@ for ii=1:length(pSize)
     
     % Adjust the pixel size (meters)
     sensor = sensorSet(sensor,'pixel size constant fill factor',[pSize(ii) pSize(ii)]*1e-6);
-    sensor = sensorSetSizeToFOV(sensor,fov,sceneFO,oi);
+    sensor = sensorSetSizeToFOV(sensor,fov,oi);
     sensor = sensorCompute(sensor,oi);
    
     ip = ipCompute(ip,sensor);
