@@ -103,7 +103,7 @@ sceneBar = sceneSet(sceneBar,'fov',5);           % Field of view in degrees
 
 %% Create an optical image with some default optics.
 oi = oiCreate('diffraction limited');
-fNumber = 12;
+fNumber = 4;
 oi = oiSet(oi,'optics fnumber',fNumber);
 
 % Now, compute the optical image from this scene and the current optical
