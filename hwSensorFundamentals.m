@@ -71,7 +71,7 @@ e = sensorGet(msensor,'electrons');
 r = range(e(:));
 nBins = min(r,50);  % Makes a nice plot
 
-vcNewGraphWin; 
+ieNewGraphWin; 
 h = histogram(e(:),nBins); % try "hist" for older versions of MATLAB 
 xlabel('Number of electrons');
 ylabel('Number of pixels');
@@ -103,7 +103,7 @@ sceneBar = sceneSet(sceneBar,'fov',5);           % Field of view in degrees
 
 %% Create an optical image with some default optics.
 oi = oiCreate('diffraction limited');
-fNumber = 4;
+fNumber = 12;
 oi = oiSet(oi,'optics fnumber',fNumber);
 
 % Now, compute the optical image from this scene and the current optical
@@ -158,11 +158,38 @@ for ii=1:length(pSize)
     mtfData{ii} = ISO12233(barImage, dx, weight, 'none');
 end
 
+
+
+%%  Show a visual example of the effect of pixel size
+% You can select a pixel size from the drop down menu on the top.
+
+sceneFO = sceneCreate('freq orient',512);
+fov   = sceneGet(sceneFO,'fov');
+oi    = oiCreate('diffraction limited');
+oi    = oiCompute(oi,sceneFO);
+ip    = ipCreate;
+
+% Let's try it with an RGB sensor this time.
+sensor = sensorCreate;
+
+%%
+for ii=1:length(pSize)
+    
+    % Adjust the pixel size (meters)
+    sensor = sensorSet(sensor,'pixel size constant fill factor',[pSize(ii) pSize(ii)]*1e-6);
+    sensor = sensorSetSizeToFOV(sensor,fov,oi);
+    sensor = sensorCompute(sensor,oi);
+   
+    ip = ipCompute(ip,sensor);
+    ip = ipSet(ip,'name',sprintf('pSize %.2f',pSize(ii)));
+    ipWindow(ip);
+end
+
 %% Plot all the mtfData
 
 % The mtfData cell array contains all the information plotted in this
 % figure.  We graph the results, comparing the different pixel size MTFs. 
-vcNewGraphWin;
+ieNewGraphWin;
 c = {'r','g','b','c','m','y','k'};
 for ii=1:length(mtfData)
     h = plot(mtfData{ii}.freq,mtfData{ii}.mtf,['-',c{ii}]);
@@ -177,30 +204,6 @@ xlabel('lines/mm');
 ylabel('Relative amplitude');
 title('MTF for different pixel sizes');
 hold off; grid on
-
-%%  Show a visual example of the effect of pixel size
-% You can select a pixel size from the drop down menu on the top.
-
-sceneFO = sceneCreate('freq orient',512);
-fov   = sceneGet(sceneFO,'fov');
-oi    = oiCreate('diffraction limited');
-oi    = oiCompute(oi,sceneFO);
-ip    = ipCreate;
-
-% Let's try it with an RGB sensor this time.
-sensor = sensorCreate;
-
-for ii=1:length(pSize)
-    
-    % Adjust the pixel size (meters)
-    sensor = sensorSet(sensor,'pixel size constant fill factor',[pSize(ii) pSize(ii)]*1e-6);
-    sensor = sensorSetSizeToFOV(sensor,fov,oi);
-    sensor = sensorCompute(sensor,oi);
-   
-    ip = ipCompute(ip,sensor);
-    ip = ipSet(ip,'name',sprintf('pSize %.2f',pSize(ii)));
-    ieAddObject(ip); ipWindow;
-end
 
 %% END
 
