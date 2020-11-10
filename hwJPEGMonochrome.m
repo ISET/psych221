@@ -19,7 +19,7 @@ ieInit
 
 % Let's read in a picture to get started
 % 
-D = load('jpegFiles/einstein.mat');  
+D = load('einstein.mat');  
 im = D.X;   % Read in as the variable X 
 vcNewGraphWin;
 imshow(im,[1,256])
@@ -39,7 +39,7 @@ title('Original Image Data');
 % to a single block. Here is an 8x8 block from the image
 
 block = im(89:96, 105:112);
-vcNewGraphWin; hist(block(:))
+vcNewGraphWin; histogram(block(:))
 title('Histogram of 8x8 block near image center');
 xlabel('Pixel value');
 ylabel('Count');
@@ -50,7 +50,7 @@ ylabel('Count');
 % functions are built use
 % typejpegFiles/makeDctMatrix.m
 
-load jpegFiles/dctMatrix;
+load('dctMatrix');
 
 % Each row of this matrix is a cos function at a different
 % spatial frequency.  But they are very coarsely sampled and so
