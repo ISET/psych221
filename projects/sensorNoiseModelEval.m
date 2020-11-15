@@ -30,6 +30,9 @@ sceneDark = sceneAdjustLuminance(scene, 0); % Use a very dark
 oi = oiCreate;
 oi = oiSet(oi, 'optics off axis method', 'cos4th');
 
+% Calculate oi 
+oi = oiCompute(sceneBright, oi);
+
 %% Use sensorIMX363 for creating sensor base model
 % 
 sensor = sensorCreate('IMX363');
@@ -59,3 +62,6 @@ curRN = sensorGet(sensor, 'pixel read noise volts');
 readNoise = 0;
 sensor = sensorSet(sensor, 'pixel read noise volts', readNoise); % In volts
 
+%%
+% Calculate sensor data
+sensor = sensorCompute(sensor, oi);
