@@ -18,7 +18,7 @@ ieInit;
 scene = sceneCreate('uniform ee');
 
 % Adjust the illuminant of the scene with our lamp SPD
-lightName = 'LIGHT NAME';
+lightName = 'D65.mat';
 sceneBright = sceneAdjustIlluminant(scene, lightName);
 
 % Adjust the luminance of the scene for dark scene
@@ -32,21 +32,30 @@ oi = oiSet(oi, 'optics off axis method', 'cos4th');
 
 %% Use sensorIMX363 for creating sensor base model
 % 
-sensor = sensorIMX363;
+sensor = sensorCreate('IMX363');
 
 %% Set Dark current
+% Check current darck current rate
+curDCR = sensorGet(sensor, 'pixel dark voltage');
+
 darkCurRate = 0; % In volts
 sensor = sensorSet(sensor, 'pixel dark voltage', darkCurRate);
 
 %% Set DSNU
+curDSNU = sensorGet(sensor, 'dsnu level');
+
 DSNU = 0; % Standard deviation in volts
 sensor = sensorSet(sensor, 'dsnu level', DSNU);
 
 %% Set PRNU
+curPRNU = sensorGet(sensor, 'prnu level');
+
 PRNU = 0; % Standard deviation in percent
 sensor = sensorSet(sensor, 'prnu level', PRNU); 
 
 %% Set read noise
+curRN = sensorGet(sensor, 'pixel read noise volts');
+
 readNoise = 0;
-sensor = sensorSet(sensor, 'pixel read noise volts'); % In volts
+sensor = sensorSet(sensor, 'pixel read noise volts', readNoise); % In volts
 
