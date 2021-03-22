@@ -10,5 +10,7 @@ We may, from time to time, need to update these files during the class.  If you 
 
     git pull
 
+The livescripts in the directory 'classroom' are the most up-to-date.  The whole repository will get an overhaul before the fall of 2021.
+
 Thanks,
-Brian, Trisha, and Joyce
+Brian 
