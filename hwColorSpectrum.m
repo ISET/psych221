@@ -34,7 +34,7 @@ d = displayCreate('LCD-Apple',wavelength);
 phosphors = displayGet(d,'spd');
 
 % Here is a plot of the phosphors
-vcNewGraphWin;
+ieNewGraphWin;
 plot(wavelength,phosphors(:,1),'r', ...
     wavelength,phosphors(:,2),'g', ...
     wavelength,phosphors(:,3),'b')
@@ -102,7 +102,7 @@ rgbSpectrum = rgbSpectrum';
 % Here is a plot of the scale factors I used to make the
 % brightness of the wavelengths more nearly equal.
 
-vcNewGraphWin;
+ieNewGraphWin;
 plot(wavelength,1./scaleFactor,'k')
 set(gca,'ylim',[0 2]), grid on
 
@@ -110,7 +110,7 @@ set(gca,'ylim',[0 2]), grid on
 
 % The horizontal axis shows wavelength and the three colored curves show
 % the linear intensity values needed for the phoshors.
-vcNewGraphWin;
+ieNewGraphWin;
 plot(wavelength,rgbSpectrum(:,1),'r', ...
     wavelength,rgbSpectrum(:,2),'g', ...
     wavelength,rgbSpectrum(:,3),'b')
@@ -148,10 +148,10 @@ rgbSpectrum = (rgbSpectrum + grayLevel);
 
 rgbSpectrum = rgbSpectrum/max(rgbSpectrum(:));
 
-vcNewGraphWin; 
+ieNewGraphWin; 
 plot(wavelength,rgbSpectrum), grid on
 set(gca,'xlim',[350 750]);
-xlabel('Wavelength (nm)'); ylabel('Lineaer RGB');
+xlabel('Wavelength (nm)'); ylabel('Linear RGB');
 
 % Now, we correct for the display nonlinearities by presuming that we know
 % something (which we don't) about your display. Here is the display gamma
@@ -180,9 +180,10 @@ im = 1:size(mp,1);
 
 % and show 'em
 % 
-vcNewGraphWin;
+ieNewGraphWin;
 mp = mp/max(mp(:));
-colormap(mp);image(wavelength,1,im)
+colormap(mp);
+image(wavelength,1,im)
 xlabel('wavelength (nm)')
 
 % Notice that the color start to fade towards the end.  Why do
@@ -191,7 +192,7 @@ xlabel('wavelength (nm)')
 % background.
 
 %% Here is a plot of the DAC values we ended up with.  
-vcNewGraphWin;
+ieNewGraphWin;
 plot(wavelength, DAC(waveSamp,1),'-r',...
     wavelength, DAC(waveSamp,2),'-g',...
     wavelength,DAC(waveSamp,3),'-b')
@@ -204,4 +205,4 @@ xlabel('Wavelength (nm)'); ylabel('Lineaer RGB');
 % obtain a more saturated overall appearance. Again, a design
 % decision.
 
-%%
+%% END
