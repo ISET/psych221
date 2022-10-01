@@ -9,7 +9,7 @@
 %
 % Wandell, October 1, 2018
 %
-% See also5
+% See also
 %  Any of the tutorials t_<> or scripts s_<>
 %
 
@@ -47,7 +47,7 @@ ieInit;
 % Create a scene comprising a multispectral line, with equal photons
 scene = sceneCreate('line ep',128);    % A thin line, equal photon radiance at each wavelength
 scene = sceneSet(scene,'fov', 0.5);    % Small field of view (deg)
-ieAddObject(scene); sceneWindow;       % Save it in the database and show
+sceneWindow(scene);                    % Save it in the database and show
 
 % Plot the scene data
 scenePlot(scene,'radiance hline',[64 64]);
@@ -58,7 +58,7 @@ set(gca,'xlim',[-1 1]);  % Plot radiance at central 1 mm
 %%
 oi = oiCreate;               % Default optics is diffraction limited
 oi = oiCompute(oi,scene);
-ieAddObject(oi); oiWindow;
+oiWindow(oi);
 
 % Plot the line spread as a function of wavelength
 oiPlot(oi,'irradiance hline',[80 80]);
@@ -67,7 +67,7 @@ set(gca,'xlim',[-10 10]);  % Plot radiance at central 10 um
 %%
 oi = oiSet(oi,'optics fnumber',12);
 oi = oiCompute(oi,scene);
-ieAddObject(oi); oiWindow;
+oiWindow(oi);
 
 oiPlot(oi,'irradiance hline',[80 80]);
 set(gca,'xlim',[-10 10]);  % Plot radiance at central 1 mm
