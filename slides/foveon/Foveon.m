@@ -1,8 +1,9 @@
 %% Convert Foveon grabit data
 
+%
 % These data are in isetwork/foveon
-% Mayabe in the Psych 221 02 sensor directory
-
+% Maybe in the Psych 221 02 sensor directory
+%{
 w = 370:730;
 
 d = load('FoveonFilteredBlue');
@@ -43,7 +44,7 @@ ieSaveColorFilter(inData,fname);
 
 foveonFilters = ieReadColorFilter(w,fname);
 vcNewGraphWin; plot(w,foveonFilters);
-
+%}
 
 %% Estimate the probability of absorption for different wavelengths as a function of depth
 
@@ -53,13 +54,13 @@ wave = 400:20:700;
 nWave = length(wave);
 A = (nWave:-1:1)/(nWave/2);
 A = A.^1.5;
-vcNewGraphWin; p = plot(wave,A);
+ieNewGraphWin; p = plot(wave,A);
 set(p,'Linewidth',2);
 set(gca,'fontsize',20)
 xlabel('Wavelength (nm)','fontsize',20); ylabel('Relative sensitivity','fontsize',20)
 grid on
 
-
+%%
 depth = 0:0.1:4;
 p = zeros(nWave,length(depth));
 for ii=1:nWave
@@ -75,7 +76,7 @@ xlabel('Depth (um)'); ylabel('Wavelength (nm)'); zlabel('Relative sensitivity')
 % set(gca,'zscale','log');
 
 %% Now add up the curves over different depth ranges
-vcNewGraphWin;
+ieNewGraphWin;
 top = sum(p(:,1:3),2);
 mid = sum(p(:,4:10),2);
 bot = sum(p(:,11:end),2);
