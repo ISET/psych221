@@ -42,7 +42,7 @@ X = [deutan,tritan];  % L-cone
 [U,~,~] = svd(X'*X);
 
 % Check that this a pretty good null vector
-assert(max(abs(X*U(:,4))) < 1e-15)
+max(abs(X*U(:,4)))
 
 % Now find the weighted some of the first two columns that is in the
 % intersection. It will be the negative of the second two columns in the
