@@ -10,6 +10,7 @@ wavelength = 400:10:700;
 % Create a scene from RGBs
 % To evaluate performance with certain colors, we should
 % create a "test chart" of those colors
+% maybe sceneReflectanceChart using all of our patches?
 
 fname = 'macbeth.tif';
 scene = sceneFromFile(fname, 'rgb', 100, 'CRT-Dell.mat');
@@ -73,3 +74,15 @@ for cbType = 1:3
     axis image; 
     axis off
 end
+
+%% So we now have a visual window into what our colors look like
+% What we haven't done is...
+% Any math to evaluate potential filters based on a set of criteria
+% for discernability and distraction (etc.)
+
+% A "trivial" example would be finding a filter that minimized the contrast
+% between the blue lines and blue court while not making it too hard to see
+% other important features (green court vs. blue court might be one, but
+% that might be okay to sacrifice since they are separated by a white line.
+% But certainly the white lines need to say high contrast.
+
