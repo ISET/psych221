@@ -1,0 +1,75 @@
+% "Sunglass" test harness
+% loosely based off a 2021 project to model EnChroma glasses
+
+
+clear
+close all
+ieInit;
+wavelength = 400:10:700;
+
+% Create a scene from RGBs
+% To evaluate performance with certain colors, we should
+% create a "test chart" of those colors
+
+fname = 'macbeth.tif';
+scene = sceneFromFile(fname, 'rgb', 100, 'CRT-Dell.mat');
+sceneWindow(scene);
+
+imgXYZ   = sceneGet(scene,'xyz');
+whiteXYZ = sceneGet(scene,'illuminant xyz');
+vcNewGraphWin;
+
+% preview the scene the way the human eye might see it
+% by rendering it through LMS cone responses
+% 
+for cbType = 1:3
+    lms =  xyz2lms(imgXYZ, cbType, 'Brettel', whiteXYZ);
+    cbXYZ = imageLinearTransform(lms, colorTransformMatrix('lms2xyz'));
+    subplot(3,1,cbType), imagesc(xyz2srgb(cbXYZ)); 
+    axis image; 
+    axis off
+end
+theOI = oiCreate('wvf human');
+theOI = oiCompute(theOI, scene);
+
+% visualize the resulting optical image
+oiWindow(theOI);
+
+
+%EnChroma transmittance
+%To be replaced by our filter of choice!
+load('EnchromaInput','EnchromaInput');
+load('EnchromaThroughLens','EnchromGrabThroughLens');
+enchromIn = interp1(EnchromaInput(:,1), EnchromaInput(:,2),wavelength);
+ieNewGraphWin;
+plot(EnchromaInput(:,1),EnchromaInput(:,2));
+enchromOut = interp1(EnchromGrabThroughLens(:,1), EnchromGrabThroughLens(:,2),wavelength);
+ieNewGraphWin;
+plot(EnchromGrabThroughLens(:,1),EnchromGrabThroughLens(:,2));
+%Plot the transmittance
+transmittance = enchromOut./enchromIn;
+transmittance = min(transmittance,1);
+transmittance = max(transmittance,0);
+ieNewGraphWin;
+plot(wavelength,transmittance,'-o');
+grid on;
+xlabel('Wave (nm)');
+ylabel('Transmittance');
+
+%% Retina image with EnChroma glasses
+Photons = oiGet(theOI,'photons');
+[Photons, row, col] = RGB2XWFormat(Photons);
+Photons = Photons*diag(transmittance);
+Photons = XW2RGBFormat(Photons, row, col);
+oi = oiSet(theOI,'photons',Photons);
+imgXYZ_EnChroma = oiGet(oi,'xyz');
+vcAddAndSelectObject(oi); 
+oiWindow;
+vcNewGraphWin;
+for cbType = 1:3
+    lms =  xyz2lms(imgXYZ_EnChroma, cbType, 'Brettel', whiteXYZ);
+    cbXYZ = imageLinearTransform(lms, colorTransformMatrix('lms2xyz'));
+    subplot(3,1,cbType), imagesc(xyz2srgb(cbXYZ)); 
+    axis image; 
+    axis off
+end
