@@ -1,75 +1,99 @@
-% "Sunglass" test harness
-% loosely based off a 2021 project to model EnChroma glasses
+% sunglasses.m
+%
+% Illustrates how to calculate the cone responses to a simple scene.  The
+% goal of this project is to understand the impact of sunglasses on the
+% cone quantum catches.
+%
+% Relies on ISETBio, not ISETCam
+%
+% See also
+%   2021 EnChroma glasses project
 
-
-clear
-close all
-ieInit;
-wavelength = 400:10:700;
-
-% Create a scene from RGBs
-% To evaluate performance with certain colors, we should
-% create a "test chart" of those colors
-
-fname = 'macbeth.tif';
-scene = sceneFromFile(fname, 'rgb', 100, 'CRT-Dell.mat');
-sceneWindow(scene);
-
-imgXYZ   = sceneGet(scene,'xyz');
-whiteXYZ = sceneGet(scene,'illuminant xyz');
-vcNewGraphWin;
-
-% preview the scene the way the human eye might see it
-% by rendering it through LMS cone responses
-% 
-for cbType = 1:3
-    lms =  xyz2lms(imgXYZ, cbType, 'Brettel', whiteXYZ);
-    cbXYZ = imageLinearTransform(lms, colorTransformMatrix('lms2xyz'));
-    subplot(3,1,cbType), imagesc(xyz2srgb(cbXYZ)); 
-    axis image; 
-    axis off
+%%
+if piCamBio
+    % Return true if ISETCam, false if ISETBio
+    error('Use ISETBio, not ISETCam');
 end
-theOI = oiCreate('wvf human');
-theOI = oiCompute(theOI, scene);
+
+%%
+ieInit;
+
+%% The basic method for creating a scene and computing the OI
+
+% Just like ISETCam.  Create a scene that is about 4 deg.
+scene = sceneCreate('macbeth d65');
+scene = sceneSet(scene,'fov',2);
+
+oi = oiCreate;
+oi = oiCompute(oi,scene);
+oiWindow(oi);
+
+%%  Now, create a cone mosaic
+
+thisMosaic = coneMosaic;
+thisMosaic.setSizeToFOV(2);
+
+thisMosaic.compute(oi);
+thisMosaic.window;
+
+%% Extra
+
+%{
+% See t_cMosaicBasic.mlx for a tutorial on the fancier kind of cone mosaics
+
+cm = cMosaic(...
+    'sizeDegs', [4 4], ...         % SIZE: 1.0 degs (x) 0.5 degs (y)
+    'positionDegs', [0 0], ... % ECC: (0,0)
+    'eccVaryingConeBlur', true ...
+    );
+cm.visualize();
+cm.compute(oi);
+%}
+%% Code illustrating how to apply a color filter to the image
+
+scene = sceneCreate('macbeth d65');
+scene = sceneSet(scene,'fov',2);
+
+sceneWindow(scene);
+oi = oiCreate('wvf human');
+oi = oiCompute(oi, scene);
 
 % visualize the resulting optical image
-oiWindow(theOI);
+oiWindow(oi);
 
+%% EnChroma is a filter that transmits light 
 
-%EnChroma transmittance
-%To be replaced by our filter of choice!
-load('EnchromaInput','EnchromaInput');
-load('EnchromaThroughLens','EnchromGrabThroughLens');
-enchromIn = interp1(EnchromaInput(:,1), EnchromaInput(:,2),wavelength);
+% There is a little script that shows how we calculated the transmittance
+% enchromaTransmittance.m
+wave = oiGet(oi,'wave');
+[eTransmittance,wave] = ieReadSpectra('enchroma',wave);
 ieNewGraphWin;
-plot(EnchromaInput(:,1),EnchromaInput(:,2));
-enchromOut = interp1(EnchromGrabThroughLens(:,1), EnchromGrabThroughLens(:,2),wavelength);
-ieNewGraphWin;
-plot(EnchromGrabThroughLens(:,1),EnchromGrabThroughLens(:,2));
-%Plot the transmittance
-transmittance = enchromOut./enchromIn;
-transmittance = min(transmittance,1);
-transmittance = max(transmittance,0);
-ieNewGraphWin;
-plot(wavelength,transmittance,'-o');
-grid on;
-xlabel('Wave (nm)');
-ylabel('Transmittance');
+plot(wave,eTransmittance,'-o');
+grid on; xlabel('Wave (nm)'); ylabel('Transmittance');
 
 %% Retina image with EnChroma glasses
-Photons = oiGet(theOI,'photons');
+
+% Now apply the transmittance to the photons in the oi
+Photons = oiGet(oi,'photons');
+
+% Convert the data format so we can easily multiply by a matrix
 [Photons, row, col] = RGB2XWFormat(Photons);
-Photons = Photons*diag(transmittance);
+
+% Multiply
+Photons = Photons*diag(eTransmittance);
+
+% Put the data back into the right format and then into the oi
 Photons = XW2RGBFormat(Photons, row, col);
-oi = oiSet(theOI,'photons',Photons);
-imgXYZ_EnChroma = oiGet(oi,'xyz');
-vcAddAndSelectObject(oi); 
-oiWindow;
-vcNewGraphWin;
-for cbType = 1:3
-    lms =  xyz2lms(imgXYZ_EnChroma, cbType, 'Brettel', whiteXYZ);
-    cbXYZ = imageLinearTransform(lms, colorTransformMatrix('lms2xyz'));
-    subplot(3,1,cbType), imagesc(xyz2srgb(cbXYZ)); 
-    axis image; 
-    axis off
-end
+oi = oiSet(oi,'photons',Photons);
+
+oiWindow(oi);
+
+%% Let's image the oi onto the cone mosaic
+
+thisMosaic.compute(oi);
+thisMosaic.window;
+absorptions = thisMosaic.absorptions;
+
+thisMosaic.plot('hline absorptions');
+
+%%
