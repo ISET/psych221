@@ -12,6 +12,47 @@ wavelength = 400:10:700;
 % create a "test chart" of those colors
 % maybe sceneReflectanceChart using all of our patches?
 
+%% The basic method for creating a scene and computing the OI
+
+% Just like ISETCam.  Create a scene that is about 4 deg.
+scene = sceneCreate('macbeth d65');
+scene = sceneSet(scene,'fov',2);
+
+%%
+oi = oiCreate('wvf human');
+oi = oiCompute(oi,scene);
+oiWindow(oi);
+
+%%  Now, create a cone mosaic
+
+thisMosaic = coneMosaic;
+thisMosaic.setSizeToFOV(2);
+
+thisMosaic.compute(oi);
+thisMosaic.window;
+
+%% Extra
+
+%{
+% See t_cMosaicBasic.mlx for a tutorial on the fancier kind of cone mosaics
+
+cm = cMosaic(...
+    'sizeDegs', [4 4], ...         % SIZE: 1.0 degs (x) 0.5 degs (y)
+    'positionDegs', [0 0], ... % ECC: (0,0)
+    'eccVaryingConeBlur', true ...
+    );
+cm.visualize();
+cm.compute(oi);
+%}
+%% Code illustrating how to apply a color filter to the image
+
+% This is a better way to create the MCC image
+%{
+ scene = sceneCreate('macbeth d65');
+ scene = sceneSet(scene,'fov',2);
+%}
+
+%%
 fname = 'macbeth.tif';
 scene = sceneFromFile(fname, 'rgb', 100, 'CRT-Dell.mat');
 sceneWindow(scene);
@@ -36,8 +77,7 @@ theOI = oiCompute(theOI, scene);
 % visualize the resulting optical image
 oiWindow(theOI);
 
-
-%EnChroma transmittance
+%% EnChroma transmittance
 %To be replaced by our filter of choice!
 load('EnchromaInput','EnchromaInput');
 load('EnchromaThroughLens','EnchromGrabThroughLens');
