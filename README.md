@@ -1,18 +1,19 @@
 # Image Systems Engineering (Psych 221)
 
-This repository includes the homework scripts for our class.  They rely on the ISET simulation that we use in class.  That software can be downloaded from the Canvas web site.
+This repository includes the homework scripts for Image Systems Engineering, Psych 221.
 
-We find that for Mac and Windows the best way to work with GitHub, now that they have tightened up on their security, is to use the [GitHub Desktop App](https://desktop.github.com/).  
+The scripts rely on the ISETCam simulation that we use in class.  That software can be downloaded from the Canvas web site, or from [ISETCam](github.com/ISET/ISETCam).
 
-We are less sure about Linux, where there is no widespread agreement on an app.  The main goal is pretty simple, though.  You must need to clone this repository, say using
+We find that for Mac and Windows [GitHub Desktop App](https://desktop.github.com/) is a good way to manage repositories.  It is possible this app has been extended to Linux, too. From the terminal, you can clone this way
 
-    git clone https://github.com/isetcam/psych221.git
+    git clone https://github.com/iset/psych221.git
+    git clone https://github.com/iset/isetcam.git
 
 We may, from time to time, need to update these files during the class.  If you need to update your local copy, change into your local directory and type
 
     git pull
 
-There repository is open, so we hope there are no authentication issues for you.
+The repository is open, so we hope there are no authentication issues.
 
-Thanks,
+Onward,
 Brian 
