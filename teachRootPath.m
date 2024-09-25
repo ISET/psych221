@@ -1,15 +1,16 @@
 function rootPath=teachRootPath()
-% Return the path to the root iset directory
+% Deprecated:  Return the path to the root psych221 directory
 %
-% This function must reside in the directory at the base of the ISET
-% directory structure.  It is used to determine the location of various
-% sub-directories.
+% Use psych221RootPath
+%
 % 
 % Example:
-%   fullfile(isetRootPath,'data')
+%   fullfile(teachRootPath,'data')
+
+warning('Use psych221RootPath');
 
 rootPath = which('teachRootPath');
 
-[rootPath,fName,ext]=fileparts(rootPath);
+rootPath=fileparts(rootPath);
 
-return
+end

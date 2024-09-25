@@ -1,7 +1,7 @@
 % Flicker photometry movie
 % tutorialInitPath
 %
-chdir(fullfile(tutorialRootPath,'teaching slides','flicker photometry'))
+chdir(fullfile(psych221RootPath,'teaching slides','flicker photometry'))
 
 %%
 A = ones(1,1,3);
