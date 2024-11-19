@@ -12,8 +12,8 @@ f = 6;
 X = (0:(nSamples-1))/nSamples; 
 s1 = sin(2*pi*f*X);
 s1 = repmat(s1,nSamples,1);
-g =fspecial('gaussian',nSamples,ceil(nSamples/16)); 
-g = ieScale(g,1); 
+g  = fspecial('gaussian',nSamples,ceil(nSamples/16)); 
+g  = ieScale(g,1); 
 
 s1 = s1.*g;
 stim = zeros(size(s1,1),size(s1,2),3);
